@@ -1,3 +1,4 @@
+import StandupConfigsModel from './standupConfigs';
 import Team from './team';
 import TeamMember from './teamMember';
 import User from './user';
@@ -9,4 +10,7 @@ export default function associateModels() {
 
     Team.hasMany(TeamMember, { foreignKey: 'team_id' });
     TeamMember.belongsTo(Team, { foreignKey: 'team_id' });
+
+    Team.hasMany(StandupConfigsModel, { foreignKey: "team_id" });
+    StandupConfigsModel.belongsTo(Team, { foreignKey: "team_id", onDelete: "CASCADE" });
 }

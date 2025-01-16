@@ -10,8 +10,9 @@ class Team extends Model {
 Team.init(
     {
         id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
+            type: DataTypes.STRING,
+            // autoIncrement: true,
+            allowNull: false,
             primaryKey: true,
         },
         name: {

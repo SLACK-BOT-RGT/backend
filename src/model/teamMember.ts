@@ -22,13 +22,13 @@ TeamMember.init(
             allowNull: false,
         },
         user_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false,
             references: { model: User, key: 'id' },
             onDelete: 'CASCADE',
         },
         team_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false,
             references: { model: Team, key: 'id' },
             onDelete: 'CASCADE',

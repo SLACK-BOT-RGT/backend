@@ -1,58 +1,67 @@
 import { WebClient } from "@slack/web-api";
 import { AckFn, RespondArguments, RespondFn, SlashCommand } from "@slack/bolt";
 import TeamModel from "../model/team";
-import TeamMemberModel from "../model/teamMember";
+import StandupConfigsModel from "../model/standupConfigs";
+import { createTeam } from "../services/team";
 
 interface commandProps {
     command: SlashCommand;
     ack: AckFn<string | RespondArguments>;
     respond: RespondFn;
+    client: WebClient
 }
 
-const slackClient = new WebClient(process.env.SLACK_BOT_TOKEN);
-
-
-export const AddTeam = async ({ command, ack, respond }: commandProps) => {
+export const AddTeam = async ({ command, ack, respond, client }: commandProps) => {
     await ack();
-    const allChannels = await slackClient.conversations.list();
+    const allChannels = await client.conversations.list();
     console.log("Avaliable channels=>", allChannels.channels?.map((channel) => channel.name));
 
-    const [name, timeZone] = command.text.split(" ");
-    if (!name || !timeZone) {
-        return respond("Usage: `/add-team [name] [timezone]`");
+    const [name, description] = command.text.split(" ");
+    if (!name || !description) {
+        return respond("Usage: `/add-team [name] [description]`");
     }
 
     try {
         // Create the team in the database
-        const team = await TeamModel.create({ name, timeZone });
+        // const team = await TeamModel.create({ name, description });
+
 
         // Create a Slack channel with the team name
-        const channelResponse = await slackClient.conversations.create({
+        const channelResponse = await client.conversations.create({
             name: name.toLowerCase().replace(/\s+/g, "-"), // Slack requires lowercase and hyphen-separated names
             is_private: false,
         });
 
-        if (!channelResponse.ok) {
-            console.error("Slack channel creation failed:", channelResponse.error);
-            return respond(
-                `Team "${name}" created successfully in the database, but Slack channel creation failed.`
+        if (channelResponse.ok && channelResponse.channel?.id) {
+            const channelId = channelResponse.channel.id;
+
+            await createTeam({ id: channelId, name, description });
+
+            // Ensure the bot joins the channel
+            // await client.conversations.join({ channel: channelId });
+
+            // Invite the user to the channel (replace with the actual user's Slack ID)
+            const userSlackId = command.user_id;
+            await client.conversations.invite({
+                channel: channelId,
+                users: userSlackId,
+            });
+
+            respond(
+                `Team "${name}" created successfully. Slack channel "#${name}" has also been created, and you have been added to the channel.`
+            );
+        } else {
+            respond(
+                "Team creation succeeded, but the Slack channel could not be created. Please try again."
             );
         }
-
-        respond(
-            `Team "${name}" created successfully. Slack channel "#${name.toLowerCase().replace(
-                /\s+/g,
-                "-"
-            )}" has also been created.`
-        );
     } catch (error) {
         console.error("Error creating team:", error);
         respond("Failed to create team. Please try again.");
     }
 };
 
-
-export const RemoveTeam = async ({ command, ack, respond }: commandProps) => {
+export const RemoveTeam = async ({ command, ack, respond, client }: commandProps) => {
     await ack();
     const teamName = command.text.trim();
 
@@ -61,20 +70,153 @@ export const RemoveTeam = async ({ command, ack, respond }: commandProps) => {
     }
 
     try {
+        // Find the team in the database
+        // const team = await TeamModel.findOne({ where: { name: teamName } });
+        // if (!team) {
+        //     return respond(`Team "${teamName}" does not exist.`);
+        // }
+
+        // Archive the associated Slack channel
+        const channelName = teamName.toLowerCase().replace(/\s+/g, "-");
+        const channelList = await client.conversations.list();
+
+        const slackChannel = channelList.channels?.find(
+            (ch) => ch.name === channelName
+        );
+
+        if (slackChannel && slackChannel.id) {
+            console.log('====================================');
+            console.log("slackChannel=>", slackChannel);
+            console.log('====================================');
+            await client.conversations.archive({ channel: slackChannel.id });
+
+            console.log(`Channel "#${channelName}" archived.`);
+        } else {
+            console.warn(`Channel "#${channelName}" not found on Slack.`);
+        }
+
+        // Delete associated team members
+        // await TeamMemberModel.destroy({ where: { team_id: team.id } });
+
+        // Delete the team itself
+        // await team.destroy();
+
+        respond(
+            `Team "${teamName}" and its members have been removed successfully. Slack channel "#${channelName}" has been archived.`
+        );
+    } catch (error) {
+        console.error("Error removing team:", error);
+        respond("Failed to remove team. Please try again.");
+    }
+};
+
+
+// export const SetSchedule = async ({ command, ack, respond }: commandProps) => {
+//     await ack();
+//     const [teamName, time] = command.text.split(" ");
+
+//     if (!teamName || !time) {
+//         return respond("Usage: `/set-schedule [team_name] [time_in_HH:MM]`");
+//     }
+
+//     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+//     if (!timeRegex.test(time)) {
+//         return respond("Invalid time format. Use HH:MM in 24-hour format.");
+//     }
+
+//     try {
+//         const team = await TeamModel.findOne({ where: { name: teamName } });
+//         if (!team) {
+//             return respond(`Team "${teamName}" does not exist.`);
+//         }
+
+//         let config = await StandupConfigsModel.findOne({ where: { team_id: team.id } });
+//         if (!config) {
+//             config = await StandupConfigsModel.create({ team_id: team.id });
+//         }
+
+//         config.reminder_time = time;
+//         await config.save();
+
+//         respond(`Schedule for team "${teamName}" has been set to ${time}.`);
+//     } catch (error) {
+//         console.error("Error setting schedule:", error);
+//         respond("Failed to set schedule. Please try again.");
+//     }
+// };
+
+export const SetQuestions = async ({ command, ack, respond }: commandProps) => {
+    await ack();
+    const [teamName, ...questionsArray] = command.text.split(" ");
+    const questions = questionsArray.join(" ").split(";").map((q) => q.trim());
+
+    if (!teamName || questions.length === 0) {
+        return respond(
+            "Usage: `/set-questions [team_name] [question1]; [question2]; [question3]`"
+        );
+    }
+
+    try {
         const team = await TeamModel.findOne({ where: { name: teamName } });
         if (!team) {
             return respond(`Team "${teamName}" does not exist.`);
         }
 
-        // Delete associated team members
-        await TeamMemberModel.destroy({ where: { team_id: team.id } });
+        let config = await StandupConfigsModel.findOne({ where: { team_id: team.id } });
+        if (!config) {
+            config = await StandupConfigsModel.create({ team_id: team.id });
+        }
 
-        // Delete the team itself
-        await team.destroy();
+        config.questions = questions;
+        await config.save();
 
-        respond(`Team "${teamName}" and its members have been removed successfully.`);
+        respond(`Standup questions for team "${teamName}" have been set successfully.`);
     } catch (error) {
-        console.error("Error removing team:", error);
-        respond("Failed to remove team. Please try again.");
+        console.error("Error setting questions:", error);
+        respond("Failed to set questions. Please try again.");
+    }
+};
+
+
+export const SetReminder = async ({ command, ack, respond }: commandProps) => {
+    await ack();
+    const [teamName, time, ...daysArray] = command.text.split(" ");
+    const days = daysArray.join(" ").split(",").map((day) => day.trim().toLowerCase());
+
+    if (!teamName || !time || days.length === 0) {
+        return respond(
+            "Usage: `/set-reminder [team_name] [time_in_HH:MM] [days_comma_separated]`"
+        );
+    }
+
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    if (!timeRegex.test(time)) {
+        return respond("Invalid time format. Use HH:MM in 24-hour format.");
+    }
+
+    const validDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+    if (!days.every((day) => validDays.includes(day))) {
+        return respond(`Invalid days provided. Use a comma-separated list of days (e.g., monday,tuesday).`);
+    }
+
+    try {
+        const team = await TeamModel.findOne({ where: { name: teamName } });
+        if (!team) {
+            return respond(`Team "${teamName}" does not exist.`);
+        }
+
+        let config = await StandupConfigsModel.findOne({ where: { team_id: team.id } });
+        if (!config) {
+            config = await StandupConfigsModel.create({ team_id: team.id });
+        }
+
+        config.reminder_time = time;
+        config.reminder_days = days;
+        await config.save();
+
+        respond(`Reminder for team "${teamName}" has been set at ${time} on ${days.join(", ")}.`);
+    } catch (error) {
+        console.error("Error setting reminder:", error);
+        respond("Failed to set reminder. Please try again.");
     }
 };
