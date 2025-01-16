@@ -9,4 +9,6 @@ export default function associateModels() {
 
     Team.hasMany(TeamMember, { foreignKey: 'team_id' });
     TeamMember.belongsTo(Team, { foreignKey: 'team_id' });
+
+
 }

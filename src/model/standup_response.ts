@@ -19,10 +19,10 @@ StandupResponses.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        response: {
+        responses: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
+            
         },
        submited_at: {
             type: DataTypes.INTEGER,
