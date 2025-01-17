@@ -3,46 +3,38 @@ import sequelize from '../config/database';
 import User from './user';
 import Team from './team';
 
-interface KudosAttributes {
+interface MoodCheckinAttributes {
     id: number;
-    from_user_id: string;
-    to_user_id: string;
+    user_id: string;
     team_id: string;
-    category: string;
-    message: string;
+    mood_score: number;
+    note: string | null;
     created_at: Date;
 }
 
-interface KudosCreationAttributes
-    extends Optional<KudosAttributes, 'id' | 'created_at'> { }
+interface MoodCheckinCreationAttributes
+    extends Optional<MoodCheckinAttributes, 'id' | 'note' | 'created_at'> { }
 
-class Kudos extends Model<KudosAttributes, KudosCreationAttributes>
-    implements KudosAttributes {
+class MoodCheckin extends Model<MoodCheckinAttributes, MoodCheckinCreationAttributes>
+    implements MoodCheckinAttributes {
     public id!: number;
-    public from_user_id!: string;
-    public to_user_id!: string;
+    public user_id!: string;
     public team_id!: string;
-    public category!: string;
-    public message!: string;
+    public mood_score!: number;
+    public note!: string | null;
     public created_at!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }
 
-Kudos.init(
+MoodCheckin.init(
     {
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
-        from_user_id: {
-            type: DataTypes.STRING,
-            allowNull: false,
-            references: { model: User, key: 'id' },
-            onDelete: 'CASCADE',
-        },
-        to_user_id: {
+        user_id: {
             type: DataTypes.STRING,
             allowNull: false,
             references: { model: User, key: 'id' },
@@ -54,13 +46,17 @@ Kudos.init(
             references: { model: Team, key: 'id' },
             onDelete: 'CASCADE',
         },
-        category: {
-            type: DataTypes.STRING,
+        mood_score: {
+            type: DataTypes.INTEGER,
             allowNull: false,
+            validate: {
+                min: 1,
+                max: 5,
+            },
         },
-        message: {
+        note: {
             type: DataTypes.TEXT,
-            allowNull: false,
+            allowNull: true,
         },
         created_at: {
             type: DataTypes.DATE,
@@ -70,10 +66,10 @@ Kudos.init(
     },
     {
         sequelize,
-        modelName: 'Kudos',
-        tableName: 'kudos',
+        modelName: 'MoodCheckin',
+        tableName: 'mood_checkins',
         timestamps: true,
     }
 );
 
-export default Kudos;
+export default MoodCheckin;
