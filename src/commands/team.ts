@@ -3,6 +3,7 @@ import { AckFn, RespondArguments, RespondFn, SlashCommand } from "@slack/bolt";
 import TeamModel from "../model/team";
 import StandupConfigsModel from "../model/standupConfigs";
 import { createTeam } from "../services/team";
+import { TeamMemberModel } from "../model";
 
 interface commandProps {
     command: SlashCommand;
@@ -71,10 +72,10 @@ export const RemoveTeam = async ({ command, ack, respond, client }: commandProps
 
     try {
         // Find the team in the database
-        // const team = await TeamModel.findOne({ where: { name: teamName } });
-        // if (!team) {
-        //     return respond(`Team "${teamName}" does not exist.`);
-        // }
+        const team = await TeamModel.findOne({ where: { name: teamName } });
+        if (!team) {
+            return respond(`Team "${teamName}" does not exist.`);
+        }
 
         // Archive the associated Slack channel
         const channelName = teamName.toLowerCase().replace(/\s+/g, "-");
@@ -85,21 +86,16 @@ export const RemoveTeam = async ({ command, ack, respond, client }: commandProps
         );
 
         if (slackChannel && slackChannel.id) {
-            console.log('====================================');
-            console.log("slackChannel=>", slackChannel);
-            console.log('====================================');
             await client.conversations.archive({ channel: slackChannel.id });
-
-            console.log(`Channel "#${channelName}" archived.`);
         } else {
             console.warn(`Channel "#${channelName}" not found on Slack.`);
         }
 
         // Delete associated team members
-        // await TeamMemberModel.destroy({ where: { team_id: team.id } });
+        await TeamMemberModel.destroy({ where: { team_id: team.id } });
 
         // Delete the team itself
-        // await team.destroy();
+        await team.destroy();
 
         respond(
             `Team "${teamName}" and its members have been removed successfully. Slack channel "#${channelName}" has been archived.`
@@ -109,41 +105,6 @@ export const RemoveTeam = async ({ command, ack, respond, client }: commandProps
         respond("Failed to remove team. Please try again.");
     }
 };
-
-
-// export const SetSchedule = async ({ command, ack, respond }: commandProps) => {
-//     await ack();
-//     const [teamName, time] = command.text.split(" ");
-
-//     if (!teamName || !time) {
-//         return respond("Usage: `/set-schedule [team_name] [time_in_HH:MM]`");
-//     }
-
-//     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-//     if (!timeRegex.test(time)) {
-//         return respond("Invalid time format. Use HH:MM in 24-hour format.");
-//     }
-
-//     try {
-//         const team = await TeamModel.findOne({ where: { name: teamName } });
-//         if (!team) {
-//             return respond(`Team "${teamName}" does not exist.`);
-//         }
-
-//         let config = await StandupConfigsModel.findOne({ where: { team_id: team.id } });
-//         if (!config) {
-//             config = await StandupConfigsModel.create({ team_id: team.id });
-//         }
-
-//         config.reminder_time = time;
-//         await config.save();
-
-//         respond(`Schedule for team "${teamName}" has been set to ${time}.`);
-//     } catch (error) {
-//         console.error("Error setting schedule:", error);
-//         respond("Failed to set schedule. Please try again.");
-//     }
-// };
 
 export const SetQuestions = async ({ command, ack, respond }: commandProps) => {
     await ack();

@@ -6,7 +6,7 @@ import Team from './team';
 class TeamMember extends Model {
     public id!: number;
     public role!: string;
-    public user_id!: number;
+    public user_id!: string;
     public team_id!: number;
 }
 
@@ -41,5 +41,11 @@ TeamMember.init(
         timestamps: true,
     }
 );
+
+Team.hasMany(TeamMember, { foreignKey: 'team_id' });
+TeamMember.belongsTo(Team, { foreignKey: 'team_id' });
+
+User.hasMany(TeamMember, { foreignKey: 'user_id' });
+TeamMember.belongsTo(User, { foreignKey: 'user_id' });
 
 export default TeamMember;

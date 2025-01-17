@@ -34,11 +34,8 @@ export const CreateTeamModalSubmission = async ({ ack, body, view, client, logge
 
             await createTeam({ id: channelId, name: name.toLowerCase().replace(/\s+/g, "-"), description });
 
-            // Invite the user to the channel (replace with the actual user's Slack ID)
             const userId = body.user.id;
-            console.log('====================================');
-            console.log("user=>", body.user);
-            console.log('====================================');
+
             await client.conversations.invite({
                 channel: channelId,
                 users: userId,

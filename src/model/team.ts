@@ -2,7 +2,7 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/database';
 
 class Team extends Model {
-    public id!: number;
+    public id!: string;
     public name!: string;
     public description!: string;
 }
@@ -11,7 +11,6 @@ Team.init(
     {
         id: {
             type: DataTypes.STRING,
-            // autoIncrement: true,
             allowNull: false,
             primaryKey: true,
         },

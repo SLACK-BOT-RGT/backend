@@ -1,6 +1,5 @@
-import { AckFn, BlockAction, RespondFn, SlackAction, SlackViewAction, ViewOutput, ViewResponseAction } from "@slack/bolt";
-import { Logger, UsersListResponse, WebClient } from "@slack/web-api";
-import { createTeam } from "../services/team";
+import { AckFn, RespondFn, SlackViewAction, ViewOutput, ViewResponseAction } from "@slack/bolt";
+import { Logger, WebClient } from "@slack/web-api";
 import { TeamMemberModel, TeamModel, UserModel } from "../model";
 
 interface ModalSubmissionProps {
@@ -11,7 +10,6 @@ interface ModalSubmissionProps {
     logger: Logger;
     respond: RespondFn;
 }
-
 
 export const AddTeamMemberModalSubmission = async ({ ack, body, view, client, logger }: ModalSubmissionProps) => {
     // Acknowledge the submission
@@ -57,10 +55,6 @@ export const AddTeamMemberModalSubmission = async ({ ack, body, view, client, lo
 
             const userId = userResponse.user?.id;
 
-            console.log('====================================');
-            console.log(teamId, memberEmail, userId);
-            console.log('====================================');
-
             // Invite the user to the channel
             await client.conversations.invite({
                 channel: channelId,
@@ -104,7 +98,6 @@ export const AddTeamMemberModalSubmission = async ({ ack, body, view, client, lo
         });
     }
 };
-
 
 export const RemoveTeamMemberModalSubmission = async ({ ack, body, view, client, logger }: ModalSubmissionProps) => {
     // Acknowledge the submission
@@ -174,36 +167,3 @@ export const RemoveTeamMemberModalSubmission = async ({ ack, body, view, client,
         });
     }
 };
-
-
-
-// export const RemoveTeamMemberModalSubmission = async ({ ack, body, view, client, logger }: ModalSubmissionProps) => {
-//     // Acknowledge the submission
-//     await ack();
-
-//     // Extract the input data
-//     const userId = body.user.id;
-//     const selected_team = view.state.values['team_selection']['selected_teams'].selected_option;
-//     const selected_members = view.state.values['member_selection']['selected_members'].selected_options || [];
-
-//     try {
-
-//         console.log('====================================');
-//         console.log("Body=>", selected_team, selected_members);
-//         console.log('====================================');
-//         // // Respond with success message
-//         // await client.chat.postMessage({
-//         //     channel: userId,
-//         //     text: `Selected members have been successfully added to the team "${teamName}".`,
-//         // });
-
-//     } catch (error) {
-//         logger.error("Error adding team members:", error);
-
-//         // Respond with failure message
-//         await client.chat.postMessage({
-//             channel: userId,
-//             text: `An error occurred while adding members to the team. Please try again.`,
-//         });
-//     }
-// };

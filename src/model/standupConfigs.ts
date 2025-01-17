@@ -1,9 +1,10 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import sequelize from "../config/database"; // Adjust this import to your Sequelize instance setup
+import sequelize from "../config/database";
+import Team from "./team";  // Add this import
 
 interface StandupConfigsAttributes {
     id: number;
-    team_id: number;
+    team_id: string;
     questions: string[] | null;
     reminder_time: string | null;
     reminder_days: string[] | null;
@@ -13,10 +14,10 @@ interface StandupConfigsAttributes {
 interface StandupConfigsCreationAttributes
     extends Optional<StandupConfigsAttributes, "id" | "questions" | "reminder_time" | "reminder_days" | "is_active"> { }
 
-class StandupConfigsModel extends Model<StandupConfigsAttributes, StandupConfigsCreationAttributes>
+class StandupConfigs extends Model<StandupConfigsAttributes, StandupConfigsCreationAttributes>
     implements StandupConfigsAttributes {
     public id!: number;
-    public team_id!: number;
+    public team_id!: string;
     public questions!: string[] | null;
     public reminder_time!: string | null;
     public reminder_days!: string[] | null;
@@ -26,7 +27,7 @@ class StandupConfigsModel extends Model<StandupConfigsAttributes, StandupConfigs
     public readonly updatedAt!: Date;
 }
 
-StandupConfigsModel.init(
+StandupConfigs.init(
     {
         id: {
             type: DataTypes.INTEGER,
@@ -34,8 +35,12 @@ StandupConfigsModel.init(
             primaryKey: true,
         },
         team_id: {
-            type: DataTypes.INTEGER,
+            type: DataTypes.STRING,
             allowNull: false,
+            references: {
+                model: Team,
+                key: 'id'
+            }
         },
         questions: {
             type: DataTypes.JSON,
@@ -66,4 +71,8 @@ StandupConfigsModel.init(
     }
 );
 
-export default StandupConfigsModel;
+// Define the association directly here
+StandupConfigs.belongsTo(Team, { foreignKey: 'team_id' });
+Team.hasMany(StandupConfigs, { foreignKey: 'team_id' });
+
+export default StandupConfigs;
