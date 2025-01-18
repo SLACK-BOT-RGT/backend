@@ -7,8 +7,10 @@ import { app } from './config/app.config';
 import { scheduleStandups } from './tasks/standupScheduler';
 import sequelize from './config/database';
 
-import { usersRoutes, slackRoutes } from './routes';
+import { usersRoutes, slackRoutes,teamsRoutes, teamMembersRoutes} from './routes';
 import { errorHandler } from './middleware/errorHandler';
+import Team from './model/team';
+
 
 const server = express();
 const port = process.env.PORT || 9000;
@@ -21,6 +23,8 @@ slackRoutes(app);
 
 // Routes
 server.use('/api/users', usersRoutes);
+server.use('/api/teams', teamsRoutes);
+server.use('/api/teamMembers', teamMembersRoutes);
 
 
 (async () => {

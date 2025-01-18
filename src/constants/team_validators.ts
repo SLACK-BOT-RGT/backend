@@ -1,7 +1,7 @@
 import { body, param } from "express-validator";
 
 
-export const createTamValidator = [
+export const createTeamValidator = [
    
     body('name')
         .isString()

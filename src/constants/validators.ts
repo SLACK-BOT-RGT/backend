@@ -22,15 +22,3 @@ export const userByIdValidator = [
         .withMessage('Id is required and must be valid')
 ]
 
-export const teamByIdValidator = [
-    param('id')
-        .isString()
-        .withMessage('Id is required and must be valid')
-]
-
-export const teamMemberByIdValidator = [
-    param('id')
-        .isString()
-        .withMessage('Id is required and must be valid')
-]
-

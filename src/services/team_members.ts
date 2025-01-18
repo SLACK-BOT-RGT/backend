@@ -41,7 +41,7 @@ export const get_team_member_by_id = async ({ id }: { id: string }) => {
     return team_member?.dataValues;
 }
 
-export const delete_user_by_id = async ({ id }: { id: string }) => {
+export const delete_team_member_by_id = async ({ id }: { id: string }) => {
 
     const team_member = await TeamMemberModel.findOne({
         where: {
