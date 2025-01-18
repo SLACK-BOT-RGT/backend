@@ -1,7 +1,7 @@
 import { body, param } from "express-validator";
 
 
-export const createUserValidator = [
+export const createTeamMembersValidator = [
     body('email')
         .isEmail()
         .withMessage('Email is required and must be valid'),
@@ -16,19 +16,7 @@ export const createUserValidator = [
         .withMessage('timeZone is required and must be valid'),
 ]
 
-export const userByIdValidator = [
-    param('id')
-        .isString()
-        .withMessage('Id is required and must be valid')
-]
-
-export const teamByIdValidator = [
-    param('id')
-        .isString()
-        .withMessage('Id is required and must be valid')
-]
-
-export const teamMemberByIdValidator = [
+export const teamMembersByIdValidator = [
     param('id')
         .isString()
         .withMessage('Id is required and must be valid')
