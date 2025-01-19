@@ -1,20 +1,20 @@
 import bodyParser from 'body-parser';
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { Request, Response } from 'express';
 dotenv.config();
 
 import { app } from './config/app.config';
 import { scheduleStandups } from './tasks/standupScheduler';
 import sequelize from './config/database';
 
-import { usersRoutes, slackRoutes,teamsRoutes, teamMembersRoutes} from './routes';
+import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes } from './routes';
 import { errorHandler } from './middleware/errorHandler';
-import Team from './model/team';
 
 
 const server = express();
 const port = process.env.PORT || 9000;
 
+// Middlewares
 server.use(bodyParser.json());
 
 // Set up all Slack app routes
@@ -24,7 +24,7 @@ slackRoutes(app);
 // Routes
 server.use('/api/users', usersRoutes);
 server.use('/api/teams', teamsRoutes);
-server.use('/api/teamMembers', teamMembersRoutes);
+server.use('/api/team-members', teamMembersRoutes);
 
 
 (async () => {
@@ -33,12 +33,17 @@ server.use('/api/teamMembers', teamMembersRoutes);
 
     await sequelize.sync({ force: false });
 
-    scheduleStandups();
+    // scheduleStandups();
 
     console.log('Database synchronized successfully.');
     await app.start(process.env.PORT || 3000);
     console.log("⚡️ Bolt app is running!");
 })();
+
+// Handle 404 Errors
+server.use((req: Request, res: Response) => {
+    res.json({ message: 'Endpoint Not Found:(' });
+});
 
 // Error Handler Middleware
 server.use(errorHandler);
@@ -48,4 +53,4 @@ server.listen(port, () => {
     console.log('====================================');
     console.log("Listening");
     console.log('====================================');
-})
+});

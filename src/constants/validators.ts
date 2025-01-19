@@ -22,3 +22,39 @@ export const userByIdValidator = [
         .withMessage('Id is required and must be valid')
 ]
 
+export const createTeamValidator = [
+    body('name')
+        .isString()
+        .withMessage('Name is required and must be valid'),
+    body('id')
+        .isString()
+        .withMessage('Id is required and must be valid'),
+    body('description')
+        .isString()
+        .withMessage('timeZone is required and must be valid'),
+]
+
+export const teamByIdValidator = [
+    param('id')
+        .isString()
+        .withMessage('Id is required and must be valid')
+]
+
+export const createTeamMembersValidator = [
+    body('role')
+        .isString()
+        .withMessage('Role is required and must be valid'),
+    body('user_id')
+        .isString()
+        .withMessage('User Id is required and must be valid'),
+    body('team_id')
+        .isString()
+        .withMessage('Team Id is required and must be valid'),
+]
+
+export const teamMembersByIdValidator = [
+    param('id')
+        .isString()
+        .withMessage('Id is required and must be valid')
+]
+

@@ -5,6 +5,7 @@ class Team extends Model {
     public id!: string;
     public name!: string;
     public description!: string;
+    public archived!: boolean;
 }
 
 Team.init(
@@ -23,6 +24,10 @@ Team.init(
             type: DataTypes.STRING,
             allowNull: true,
         },
+        archived: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        }
     },
     {
         sequelize,
