@@ -1,21 +1,24 @@
 import { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../utils/CustomError';
-
-
-import { create_team_member, delete_team_member_by_id, get_all_teams_members, get_team_member_by_email, get_team_member_by_id } from '../services/team_members';
+import { create_team_member, delete_team_member_by_id, get_all_teams_members, get_team_member_by_id, update_team_member } from '../services/team_members';
+import { get_user_by_id } from '../services/users';
 
 
 export const createTeamMemberRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, name, timeZone, id } = req.body;
+        const { role, user_id, team_id } = req.body;
 
-        const existingTeamMember = await get_team_member_by_email({ email });
+        const user = await get_user_by_id({ id: user_id });
+        if (!user) throw new CustomError("User not found!", 404);
 
-        if (existingTeamMember) throw new CustomError("Team Members  with this email already exist!", 409);
+        const teamMembers = await get_all_teams_members();
+        const existingTeamMember = teamMembers.find((item) => item.team_id == team_id && item.user_id == user_id);
 
+        if (existingTeamMember) throw new CustomError("Member already exist!", 409);
 
-        const newTeamMember = await create_team_member({ email, name, timeZone, id });
-        res.status(201).json({ data: newTeamMember , success: true });
+        const newTeamMember = await create_team_member({ role, team_id, user_id });
+
+        res.status(201).json({ data: newTeamMember, success: true });
     } catch (error) {
         next(error);
     }
@@ -43,9 +46,20 @@ export const getTeamMembersByIdRequest = async (req: Request, res: Response, nex
     }
 };
 
+export const updateTeamMemberRequest = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { role } = req.body;
+        const teamMember = await update_team_member({ id: req.params.id, role });
+
+        res.status(200).json({ data: teamMember, success: true });
+    } catch (error) {
+        next(error);
+    }
+};
+
 export const deleteTeamMemberRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const teamMember = await delete_team_member_by_id ({ id: req.params.id });
+        const teamMember = await delete_team_member_by_id({ id: req.params.id });
 
         res.status(200).json({ data: teamMember, success: true });
     } catch (error) {
