@@ -58,3 +58,15 @@ export const teamMembersByIdValidator = [
         .withMessage('Id is required and must be valid')
 ]
 
+export const createStandupConfigValidator = [
+    body('role')
+        .isString()
+        .withMessage('Role is required and must be valid'),
+    body('user_id')
+        .isString()
+        .withMessage('User Id is required and must be valid'),
+    body('team_id')
+        .isString()
+        .withMessage('Team Id is required and must be valid'),
+]
+
