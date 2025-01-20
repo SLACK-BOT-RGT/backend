@@ -58,3 +58,18 @@ export const teamMembersByIdValidator = [
         .withMessage('Id is required and must be valid')
 ]
 
+export const createStandupConfigValidator = [
+    body('team_id')
+        .isString()
+        .withMessage('Team Id is required and must be valid'),
+    body('questions')
+        .isString()
+        .withMessage('Questions are required and must be valid'),
+    body('reminder_days')
+        .isString()
+        .withMessage('Reminder days are required and must be valid'),
+    body('reminder_time')
+        .isString()
+        .withMessage('Reminder time is required and must be valid'),
+]
+
