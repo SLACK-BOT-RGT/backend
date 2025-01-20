@@ -1,4 +1,5 @@
 import bodyParser from 'body-parser';
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 dotenv.config();
@@ -16,6 +17,10 @@ const port = process.env.PORT || 9000;
 
 // Middlewares
 server.use(bodyParser.json());
+server.use(cors({
+    origin: true,
+    credentials: true
+}));
 
 // Set up all Slack app routes
 slackRoutes(app);
@@ -25,7 +30,7 @@ slackRoutes(app);
 server.use('/api/users', usersRoutes);
 server.use('/api/teams', teamsRoutes);
 server.use('/api/team-members', teamMembersRoutes);
-server.use('api/standup-config', standupConfiqRoutes );
+server.use('/api/standup-config', standupConfiqRoutes);
 
 (async () => {
     // Start the app
