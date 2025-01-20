@@ -6,19 +6,28 @@ import { get_user_by_id } from '../services/users';
 
 export const createTeamMemberRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { role, user_id, team_id } = req.body;
+        const { data } = req.body;
 
-        const user = await get_user_by_id({ id: user_id });
-        if (!user) throw new CustomError("User not found!", 404);
 
-        const teamMembers = await get_all_teams_members();
-        const existingTeamMember = teamMembers.find((item) => item.team_id == team_id && item.user_id == user_id);
+        const newTeamMembers = await Promise.all(
+            data.map(async (member: any) => {
+                const { role, team_id, user_id } = member;
 
-        if (existingTeamMember) throw new CustomError("Member already exist!", 409);
+                const user = await get_user_by_id({ id: user_id });
+                if (!user) throw new CustomError("User not found!", 404);
 
-        const newTeamMember = await create_team_member({ role, team_id, user_id });
+                const teamMembers = await get_all_teams_members();
+                const existingTeamMember = teamMembers.find(
+                    (item) => item.team_id === team_id && item.user_id === user_id
+                );
 
-        res.status(201).json({ data: newTeamMember, success: true });
+                if (existingTeamMember) throw new CustomError("Member already exists!", 409);
+
+                return await create_team_member({ role, team_id, user_id });
+            })
+        );
+
+        res.status(201).json({ data: newTeamMembers, success: true });
     } catch (error) {
         next(error);
     }

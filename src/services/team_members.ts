@@ -1,4 +1,5 @@
 import { TeamMemberModel } from "../model"
+import User from "../model/user";
 import { CustomError } from "../utils/CustomError";
 
 interface createTeamMemberProps {
@@ -18,7 +19,11 @@ export const create_team_member = async (teamMemberData: createTeamMemberProps) 
 
 export const get_all_teams_members = async () => {
 
-    const team_members = await TeamMemberModel.findAll();
+    const team_members = await TeamMemberModel.findAll({
+        include: [{
+            model: User
+        }],
+    });
 
     return team_members;
 }

@@ -6,7 +6,7 @@ import { createTeamMemberRequest, deleteTeamMemberRequest, getTeamMembersByIdReq
 const router = express.Router();
 
 
-router.post('/', createTeamMembersValidator, validateRequestBody, createTeamMemberRequest);
+router.post('/', createTeamMemberRequest);
 
 router.get('/', getTeamMembersRequest);
 
