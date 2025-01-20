@@ -30,7 +30,7 @@ slackRoutes(app);
 server.use('/api/users', usersRoutes);
 server.use('/api/teams', teamsRoutes);
 server.use('/api/team-members', teamMembersRoutes);
-server.use('api/standup-config', standupConfiqRoutes );
+server.use('/api/standup-config', standupConfiqRoutes);
 
 (async () => {
     // Start the app

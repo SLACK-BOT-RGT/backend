@@ -1,22 +1,20 @@
 import { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../utils/CustomError';
-import { delete_team_by_id, get_all_teams, get_team_by_id, update_team_by_id } from '../services/team';
-import { create_Team } from '../services/team';
-import { get_reminder_days, get_reminder_time } from '../services/standup_config';
+import { get_team_by_id } from '../services/team';
+import { create_standup_config, get_team_standup_config, update_standup_config } from '../services/standup_config';
 
 
-
-export const createStandupConfigQuestionsRequest = async (req: Request, res: Response, next: NextFunction) => {
+export const createStandupConfigRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { team_id,id, reminder_days,  reminder_time, is_active  } = req.body;
+        const { team_id, reminder_days, reminder_time, questions } = req.body;
 
-        const questions = await get_all_teams();
+        const team = await get_team_by_id({ id: team_id });
+        if (!team) throw new CustomError("Team not found", 404);
 
-        const existtingQuestions = questions.find((item) => item.questions == questions);
+        const standconfig = await get_team_standup_config({ team_id });
+        if (standconfig) throw new CustomError("standconfig already exist!", 409);
 
-        if (existtingQuestions) throw new CustomError("Questions already exist!", 409);
-// I don't ge t this code
-        const newQuestion = await create_standup_config_questions({team_id,id, reminder_days,  reminder_time, is_active});
+        const newQuestion = await create_standup_config({ questions, reminder_days, reminder_time, team_id, });
 
         res.status(201).json({ data: newQuestion, success: true });
     } catch (error) {
@@ -24,9 +22,10 @@ export const createStandupConfigQuestionsRequest = async (req: Request, res: Res
     }
 };
 
-export const getReminderTimeRequest = async (req: Request, res: Response, next: NextFunction) => {
+export const getTeamStandupConfigRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const time = await get_reminder_time();
+        const { team_id } = req.params;
+        const time = await get_team_standup_config({ team_id });
 
         res.status(200).json({ data: time, success: true });
     } catch (error) {
@@ -34,9 +33,15 @@ export const getReminderTimeRequest = async (req: Request, res: Response, next: 
     }
 };
 
-export const getReminderDaysRequest = async (req: Request, res: Response, next: NextFunction) => {
+export const updateStandupConfigRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const time = await get_reminder_days();
+        const { config_id } = req.params;
+        const { team_id, reminder_days, reminder_time, questions } = req.body;
+
+        const team = await get_team_by_id({ id: team_id });
+        if (!team) throw new CustomError("Team not found", 404);
+
+        const time = await update_standup_config({ questions, reminder_days, reminder_time, team_id, id: parseInt(config_id) });
 
         res.status(200).json({ data: time, success: true });
     } catch (error) {
