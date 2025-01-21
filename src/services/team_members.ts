@@ -1,6 +1,8 @@
-import { TeamMemberModel } from "../model"
+import { StandupResponseModel, TeamMemberModel } from "../model"
+import StandupResponse from "../model/standupResponse";
 import User from "../model/user";
 import { CustomError } from "../utils/CustomError";
+import { Op } from 'sequelize';
 
 interface createTeamMemberProps {
     role: string;
@@ -64,3 +66,82 @@ export const delete_team_member_by_id = async ({ id }: { id: string }) => {
 
     return team_MemberData;
 }
+
+
+export const get_team_members_today_status = async ({ team_id }: { team_id: string }) => {
+    try {
+        // Fetch team members and associated user details
+        const team_members = await TeamMemberModel.findAll({
+            where: { team_id: team_id },
+            include: [{ model: User }],
+        });
+
+        // Get the current date and reset time to the start of the day
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        console.log("Fetching team members' status for today...");
+
+        // Map team members and fetch their standup status for today
+        const data = await Promise.all(
+            team_members.map(async (member) => {
+                const existingStandup = await StandupResponseModel.findOne({
+                    where: {
+                        user_id: member.user_id,
+                        submitted_at: { [Op.gte]: today },
+                    },
+                });
+
+                return {
+                    name: member.dataValues.User.name,
+                    status: existingStandup ? "Responded" : "Missed",
+                    time: existingStandup?.dataValues.submitted_at || "-",
+                };
+            })
+        );
+
+        return data;
+    } catch (error) {
+        console.error("Error fetching team members' status:", error);
+        throw new Error("Failed to fetch team members' status.");
+    }
+};
+
+export const get_team_members_week_status = async ({ team_id }: { team_id: string }) => {
+    try {
+        // Fetch team members and associated user details
+        const team_members = await TeamMemberModel.findAll({
+            where: { team_id: team_id },
+            include: [{ model: User }],
+        });
+
+        // Get the current date and reset time to the start of the day
+        // const today = new Date();
+        // today.setHours(0, 0, 0, 0);
+
+        console.log("Fetching team members' status for today...");
+
+        // Map team members and fetch their standup status for today
+        const data = await Promise.all(
+            team_members.map(async (member) => {
+                const existingStandup = await StandupResponseModel.findOne({
+                    where: {
+                        user_id: member.user_id,
+                        // submitted_at: { [Op.gte]: today },
+                    },
+                });
+
+                return {
+                    name: member.dataValues.User.name,
+                    status: existingStandup ? "Responded" : "Missed",
+                    time: existingStandup?.dataValues.submitted_at || "-",
+                };
+            })
+        );
+
+        return data;
+    } catch (error) {
+        console.error("Error fetching team members' status:", error);
+        throw new Error("Failed to fetch team members' status.");
+    }
+};

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../utils/CustomError';
-import { create_team_member, delete_team_member_by_id, get_all_teams_members, get_team_member_by_id, update_team_member } from '../services/team_members';
+import { create_team_member, delete_team_member_by_id, get_all_teams_members, get_team_member_by_id, get_team_members_today_status, get_team_members_week_status, update_team_member } from '../services/team_members';
 import { get_user_by_id } from '../services/users';
 
 
@@ -43,6 +43,7 @@ export const getTeamMembersRequest = async (req: Request, res: Response, next: N
     }
 };
 
+
 export const getTeamMembersByIdRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const teamMember = await get_team_member_by_id({ id: req.params.id });
@@ -72,6 +73,36 @@ export const deleteTeamMemberRequest = async (req: Request, res: Response, next:
 
         res.status(200).json({ data: teamMember, success: true });
     } catch (error) {
+        next(error);
+    }
+};
+
+
+
+export const getTeamMembersTodayStatusRequest = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { team_id } = req.params;
+        const team_members = await get_team_members_today_status({ team_id });
+
+        res.status(200).json({ data: team_members, success: true });
+    } catch (error) {
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
+        next(error);
+    }
+};
+
+export const getTeamMembersWeekStatusRequest = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { team_id } = req.params;
+        const team_members = await get_team_members_week_status({ team_id });
+
+        res.status(200).json({ data: team_members, success: true });
+    } catch (error) {
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
         next(error);
     }
 };

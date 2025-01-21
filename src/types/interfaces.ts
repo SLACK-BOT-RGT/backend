@@ -12,3 +12,10 @@ export interface IStandupConfig {
     reminder_days: string[];
     is_active?: boolean;
 }
+
+export interface IStandupResponses {
+    id?: number;
+    user_id: string;
+    config_id: string;
+    responses: string;
+}

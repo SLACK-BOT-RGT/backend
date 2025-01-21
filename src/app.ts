@@ -8,7 +8,7 @@ import { app } from './config/app.config';
 import { scheduleStandups } from './tasks/standupScheduler';
 import sequelize from './config/database';
 
-import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes } from './routes';
+import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes, standupResponsesRoutes } from './routes';
 import { errorHandler } from './middleware/errorHandler';
 
 
@@ -31,6 +31,7 @@ server.use('/api/users', usersRoutes);
 server.use('/api/teams', teamsRoutes);
 server.use('/api/team-members', teamMembersRoutes);
 server.use('/api/standup-config', standupConfiqRoutes);
+server.use('/api/standup-responses', standupResponsesRoutes);
 
 (async () => {
     // Start the app

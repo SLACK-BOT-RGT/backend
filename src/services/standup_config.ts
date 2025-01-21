@@ -25,7 +25,14 @@ export const get_team_standup_config = async ({ team_id }: { team_id: string }) 
         include: [Team]
     });
 
-    return reminder_time;
+    return reminder_time?.dataValues;
+}
+
+export const get_standup_config_by_id = async ({ id }: { id: string }) => {
+
+    const reminder_time = await StandupConfigsModel.findByPk(id);
+
+    return reminder_time?.dataValues;
 }
 
 
