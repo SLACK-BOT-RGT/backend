@@ -15,9 +15,6 @@ export const createStandupResponsesRequest = async (req: Request, res: Response,
 
         res.status(201).json({ data: newResponses, success: true });
     } catch (error) {
-        console.log('====================================');
-        console.log(error);
-        console.log('====================================');
         next(error);
     }
 };

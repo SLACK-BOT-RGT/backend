@@ -6,13 +6,13 @@ import { create_user, delete_user_by_id, get_all_users, get_user_by_email, get_u
 
 export const createUserRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const { email, name, timeZone, id } = req.body;
+        const { email, name, timeZone, id, is_admin } = req.body;
 
         const existtingUser = await get_user_by_email({ email });
 
         if (existtingUser) throw new CustomError("User with this email already exist!", 409);
 
-        const newUser = await create_user({ email, name, timeZone, id });
+        const newUser = await create_user({ email, name, timeZone, id, is_admin });
 
         res.status(201).json({ data: newUser, success: true });
     } catch (error) {

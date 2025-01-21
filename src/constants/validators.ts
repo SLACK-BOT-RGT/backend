@@ -26,9 +26,6 @@ export const createTeamValidator = [
     body('name')
         .isString()
         .withMessage('Name is required and must be valid'),
-    body('id')
-        .isString()
-        .withMessage('Id is required and must be valid'),
     body('description')
         .isString()
         .withMessage('timeZone is required and must be valid'),

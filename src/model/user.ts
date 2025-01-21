@@ -6,6 +6,7 @@ class User extends Model {
     public name!: string;
     public email!: string;
     public timeZone!: string;
+    public is_admin!: boolean;
 }
 
 User.init(
@@ -27,6 +28,11 @@ User.init(
         timeZone: {
             type: DataTypes.STRING,
             allowNull: true,
+        },
+        is_admin: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true,
+            defaultValue: false
         },
     },
     {

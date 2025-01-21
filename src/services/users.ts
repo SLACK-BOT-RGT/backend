@@ -4,9 +4,9 @@ import { CustomError } from "../utils/CustomError";
 
 export const create_user = async (userData: IUser) => {
 
-    const { email, name, timeZone, id } = userData;
+    const { email, name, timeZone, id, is_admin } = userData;
 
-    const user = await UserModel.create({ email, name, timeZone, id });
+    const user = await UserModel.create({ email, name, timeZone, id, is_admin });
 
     return user.dataValues;
 }
