@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import User from './user';
 import StandupConfigsModel from './standupConfigs';
+import StandupConfigs from './standupConfigs';
 
 interface StandupResponseAttributes {
     id: number;
@@ -66,5 +67,8 @@ StandupResponse.init(
 
 User.hasMany(StandupResponse, { foreignKey: 'user_id' });
 StandupResponse.belongsTo(User, { foreignKey: 'user_id' });
+
+StandupConfigs.hasMany(StandupResponse, { foreignKey: 'config_id' });
+StandupResponse.belongsTo(StandupConfigs, { foreignKey: 'config_id' });
 
 export default StandupResponse;
