@@ -2,12 +2,16 @@ import { NextFunction, Request, Response } from 'express';
 import { CustomError } from '../utils/CustomError';
 import { create_team_member, delete_team_member_by_id, get_all_teams_members, get_team_member_by_id, get_team_members_today_status, get_team_members_week_status, update_team_member } from '../services/team_members';
 import { get_user_by_id } from '../services/users';
+import { WebClient } from '@slack/web-api';
+import { get_team_by_id } from '../services/team';
+import { ITeam } from '../types/interfaces';
+
+const client = new WebClient(process.env.SLACK_BOT_TOKEN);
 
 
 export const createTeamMemberRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { data } = req.body;
-
 
         const newTeamMembers = await Promise.all(
             data.map(async (member: any) => {
@@ -16,6 +20,9 @@ export const createTeamMemberRequest = async (req: Request, res: Response, next:
                 const user = await get_user_by_id({ id: user_id });
                 if (!user) throw new CustomError("User not found!", 404);
 
+                const team: ITeam = await get_team_by_id({ id: team_id });
+                if (!team) throw new CustomError("Team not found!", 404);
+
                 const teamMembers = await get_all_teams_members();
                 const existingTeamMember = teamMembers.find(
                     (item) => item.team_id === team_id && item.user_id === user_id
@@ -23,7 +30,21 @@ export const createTeamMemberRequest = async (req: Request, res: Response, next:
 
                 if (existingTeamMember) throw new CustomError("Member already exists!", 409);
 
-                return await create_team_member({ role, team_id, user_id });
+                const newMember = await create_team_member({ role, team_id, user_id });
+
+                // Fetch channel info
+                const channelList = await client.conversations.list();
+                const channel = channelList.channels?.find((ch) => ch.name === team.name);
+
+                if (!channel || !channel.id) {
+                    throw new CustomError(`Channel "#${team.name}" not found.`, 404);
+                }
+
+                // Invite user to channel
+                await client.conversations.invite({ channel: channel.id, users: user.id });
+
+                return newMember;
+
             })
         );
 
@@ -86,9 +107,6 @@ export const getTeamMembersTodayStatusRequest = async (req: Request, res: Respon
 
         res.status(200).json({ data: team_members, success: true });
     } catch (error) {
-        console.log('====================================');
-        console.log(error);
-        console.log('====================================');
         next(error);
     }
 };
@@ -100,9 +118,6 @@ export const getTeamMembersWeekStatusRequest = async (req: Request, res: Respons
 
         res.status(200).json({ data: team_members, success: true });
     } catch (error) {
-        console.log('====================================');
-        console.log(error);
-        console.log('====================================');
         next(error);
     }
 };

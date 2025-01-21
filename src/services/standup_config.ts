@@ -41,11 +41,20 @@ export const update_standup_config = async (standconfigData: IStandupConfig) => 
 
     const standconfig = await StandupConfigsModel.findByPk(id);
 
-    if (!standconfig) throw new CustomError(`Standup config not found`, 404);
+    if (!standconfig) {
+        const standconfigData = await create_standup_config({ questions, reminder_days, reminder_time, team_id });
 
-    await standconfig.update({
-        team_id, questions, reminder_days, reminder_time
-    });
+        return { data: standconfigData, status: 201 }
 
-    return standconfig.dataValues;
+    } else {
+        await standconfig.update({
+            team_id, questions, reminder_days, reminder_time
+        });
+
+        return { data: standconfig.dataValues, status: 200 };
+
+    }
+
+
+
 }

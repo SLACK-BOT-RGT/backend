@@ -41,9 +41,9 @@ export const updateStandupConfigRequest = async (req: Request, res: Response, ne
         const team = await get_team_by_id({ id: team_id });
         if (!team) throw new CustomError("Team not found", 404);
 
-        const time = await update_standup_config({ questions, reminder_days, reminder_time, team_id, id: parseInt(config_id) });
+        const { data, status } = await update_standup_config({ questions, reminder_days, reminder_time, team_id, id: parseInt(config_id) });
 
-        res.status(200).json({ data: time, success: true });
+        res.status(status).json({ data: data, success: true });
     } catch (error) {
         next(error);
     }

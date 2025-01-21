@@ -8,8 +8,10 @@ import { app } from './config/app.config';
 import { scheduleStandups } from './tasks/standupScheduler';
 import sequelize from './config/database';
 
-import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes, standupResponsesRoutes } from './routes';
+import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes, standupResponsesRoutes, magicLinkRoutes, authRoutes } from './routes';
 import { errorHandler } from './middleware/errorHandler';
+import { scheduleUserMonitoring } from './tasks/userMonitoring';
+import { authenticateToken } from './middleware/auth';
 
 
 const server = express();
@@ -27,6 +29,9 @@ slackRoutes(app);
 
 
 // Routes
+server.use('/api/send-magic-link', magicLinkRoutes);
+server.use(authenticateToken);
+server.use('/api/auth', authRoutes);
 server.use('/api/users', usersRoutes);
 server.use('/api/teams', teamsRoutes);
 server.use('/api/team-members', teamMembersRoutes);
@@ -40,6 +45,8 @@ server.use('/api/standup-responses', standupResponsesRoutes);
     await sequelize.sync({ force: false });
 
     // scheduleStandups();
+
+    // scheduleUserMonitoring();
 
     console.log('Database synchronized successfully.');
     await app.start(process.env.PORT || 3000);
