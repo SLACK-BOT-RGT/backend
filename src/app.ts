@@ -46,7 +46,7 @@ server.use('/api/standup-responses', standupResponsesRoutes);
 
     // scheduleStandups();
 
-    // scheduleUserMonitoring();
+    scheduleUserMonitoring();
 
     console.log('Database synchronized successfully.');
     await app.start(process.env.PORT || 3000);
