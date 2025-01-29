@@ -141,17 +141,17 @@ export const SetQuestions = async ({ command, ack, respond }: commandProps) => {
 
 export const SetReminder = async ({ command, ack, respond }: commandProps) => {
     await ack();
-    const [teamName, time, ...daysArray] = command.text.split(" ");
+    const [teamName, time, due_time, ...daysArray] = command.text.split(" ");
     const days = daysArray.join(" ").split(",").map((day) => day.trim().toLowerCase());
 
-    if (!teamName || !time || days.length === 0) {
+    if (!teamName || !time || !due_time || days.length === 0) {
         return respond(
             "Usage: `/set-reminder [team_name] [time_in_HH:MM] [days_comma_separated]`"
         );
     }
 
     const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
-    if (!timeRegex.test(time)) {
+    if (!timeRegex.test(time) || !timeRegex.test(due_time)) {
         return respond("Invalid time format. Use HH:MM in 24-hour format.");
     }
 
@@ -172,6 +172,7 @@ export const SetReminder = async ({ command, ack, respond }: commandProps) => {
         }
 
         config.reminder_time = time;
+        config.due_time = due_time;
         config.reminder_days = days;
         await config.save();
 

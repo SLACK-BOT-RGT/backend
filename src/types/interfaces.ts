@@ -12,6 +12,7 @@ export interface IStandupConfig {
     team_id: string;
     questions: string[];
     reminder_time: string;
+    due_time: string;
     reminder_days: string[];
     is_active?: boolean;
 }
@@ -19,8 +20,10 @@ export interface IStandupConfig {
 export interface IStandupResponses {
     id?: number;
     user_id: string;
-    config_id: string;
-    responses: string;
+    config_id: number;
+    responses: any;
+    submitted_at?: Date;
+    status?: 'responded' | 'not responded' | 'missed';
 }
 
 export interface AuthRequest extends Request {

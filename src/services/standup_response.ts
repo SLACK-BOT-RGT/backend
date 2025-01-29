@@ -29,9 +29,8 @@ export const create_standup_responses = async (standconfigResponsesData: IStandu
 
     const standupresponses = await StandupResponseModel.create({
         user_id: user_id,
-        config_id: parseInt(config_id),
+        config_id: config_id,
         responses,
-        submitted_at: new Date()
     });
 
     return standupresponses.dataValues;
@@ -103,7 +102,7 @@ export const get_drafted_standup_responses = async () => {
                 team: standupConfig?.Team?.name || "Unknown Team",
                 team_id: standupConfig?.Team?.id || "Unknown Team",
                 date: response.submitted_at,
-                status: "Completed",
+                status: response.status,
                 standup: standupConfig?.questions.map((question, index) => ({
                     question,
                     response: response.responses[index] || "No Response",
@@ -121,5 +120,42 @@ export const get_drafted_standup_responses = async () => {
 
 
 
+export const delete_standup_response = async ({ id }: { id: string }) => {
+    try {
 
+        // Fetch responses with their associated configuration and team in a single query
+        const responses = await StandupResponseModel.findByPk(id);
+
+        if (!responses) throw new CustomError("Response not found!", 404);
+
+        responses.destroy();
+
+
+        return responses.dataValues;
+    } catch (error) {
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
+    }
+};
 //   
+
+
+
+export const update_standup_response = async (standconfigResponsesData: IStandupResponses) => {
+
+    const { user_id, config_id, responses, id, status, submitted_at } = standconfigResponsesData;
+
+    // Check if standup has already started today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const existingStandup = await StandupResponseModel.findByPk(id);
+
+    if (!existingStandup) throw new CustomError("Response not found!", 404);
+
+    await existingStandup?.update({ user_id, config_id, responses, id, status, submitted_at })
+
+
+    return existingStandup?.dataValues;
+}
