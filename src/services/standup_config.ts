@@ -7,10 +7,10 @@ import { get_team_by_id } from "./team";
 
 export const create_standup_config = async (standconfigData: IStandupConfig) => {
 
-    const { team_id, questions, reminder_days, reminder_time } = standconfigData;
+    const { team_id, questions, reminder_days, reminder_time, due_time } = standconfigData;
 
     const standconfig = await StandupConfigsModel.create({
-        team_id, questions, reminder_days, reminder_time
+        team_id, questions, reminder_days, reminder_time,
     });
 
     return standconfig.dataValues;
@@ -37,18 +37,18 @@ export const get_standup_config_by_id = async ({ id }: { id: string }) => {
 
 
 export const update_standup_config = async (standconfigData: IStandupConfig) => {
-    const { team_id, questions, reminder_days, reminder_time, id } = standconfigData;
+    const { team_id, questions, reminder_days, reminder_time, id, due_time } = standconfigData;
 
     const standconfig = await StandupConfigsModel.findByPk(id);
 
     if (!standconfig) {
-        const standconfigData = await create_standup_config({ questions, reminder_days, reminder_time, team_id });
+        const standconfigData = await create_standup_config({ questions, reminder_days, reminder_time, team_id, due_time });
 
         return { data: standconfigData, status: 201 }
 
     } else {
         await standconfig.update({
-            team_id, questions, reminder_days, reminder_time
+            team_id, questions, reminder_days, reminder_time, due_time
         });
 
         return { data: standconfig.dataValues, status: 200 };

@@ -39,6 +39,9 @@ export const submitStandupModal = async (userId: string, client: any, triggerId:
                 where: {
                     config_id: teamConfig.id,
                     user_id: userId,
+                    status: {
+                        [Op.or]: ['responded', 'missed'],
+                    },
                     submitted_at: {
                         [Op.gte]: today
                     }
@@ -48,7 +51,7 @@ export const submitStandupModal = async (userId: string, client: any, triggerId:
             if (existingStandup) {
                 return client.chat.postEphemeral({
                     channel: userId,
-                    text: "Today's standup has already been started!",
+                    text: "Today's standup has already been submitted or missed!",
                     user: userId,
                 });
             }

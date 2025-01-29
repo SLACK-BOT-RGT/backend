@@ -68,5 +68,8 @@ export const createStandupConfigValidator = [
     body('reminder_time')
         .isString()
         .withMessage('Reminder time is required and must be valid'),
+    body('due_time')
+        .isString()
+        .withMessage('Due time is required and must be valid'),
 ]
 

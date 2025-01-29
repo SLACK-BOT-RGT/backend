@@ -6,7 +6,7 @@ const client = new WebClient(process.env.SLACK_BOT_TOKEN);
 
 export const scheduleUserMonitoring = () => {
     // Schedule cron job to run every minute
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('*/5 * * * *', async () => {
         try {
             console.log("User monitoring cron job started...");
 

@@ -4,19 +4,20 @@ import dotenv from 'dotenv';
 import express, { Request, Response } from 'express';
 dotenv.config();
 
-import { app } from './config/app.config';
-import { scheduleStandups } from './tasks/standupScheduler';
-import sequelize from './config/database';
 
 import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes, standupResponsesRoutes, magicLinkRoutes, authRoutes } from './routes';
-import { errorHandler } from './middleware/errorHandler';
-import { scheduleUserMonitoring } from './tasks/userMonitoring';
+import { app } from './config/app.config';
 import { authenticateToken } from './middleware/auth';
+import { errorHandler } from './middleware/errorHandler';
+import { scheduleStandups } from './tasks/standupScheduler';
+import { scheduleUserMonitoring } from './tasks/userMonitoring';
+import { WebClient } from '@slack/web-api';
+import sequelize from './config/database';
 
 
 const server = express();
 const port = process.env.PORT || 9000;
-
+const client = new WebClient(process.env.SLACK_BOT_TOKEN);
 // Middlewares
 server.use(bodyParser.json());
 server.use(cors({
@@ -44,9 +45,18 @@ server.use('/api/standup-responses', standupResponsesRoutes);
 
     await sequelize.sync({ force: false });
 
-    // scheduleStandups();
+    scheduleStandups();
 
-    // scheduleUserMonitoring();
+
+    const userList = await client.users.list({});
+    const members = userList.members;
+
+    console.log('====================================');
+    console.log(members);
+    console.log('====================================');
+    // fetchAllChannels();
+
+    scheduleUserMonitoring();
 
     console.log('Database synchronized successfully.');
     await app.start(process.env.PORT || 3000);

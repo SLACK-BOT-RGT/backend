@@ -10,18 +10,16 @@ interface StandupResponseAttributes {
     config_id: number;
     responses: any; // Using 'any' for JSONB type
     submitted_at: Date;
+    status: 'responded' | 'not responded' | 'missed';
 }
 
-interface StandupResponseCreationAttributes
-    extends Optional<StandupResponseAttributes, 'id'> { }
-
-class StandupResponse extends Model<StandupResponseAttributes, StandupResponseCreationAttributes>
-    implements StandupResponseAttributes {
+class StandupResponse extends Model {
     public id!: number;
     public user_id!: string;
     public config_id!: number;
     public responses!: any;
     public submitted_at!: Date;
+    public status!: 'responded' | 'not responded' | 'missed';
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -50,6 +48,11 @@ StandupResponse.init(
         responses: {
             type: DataTypes.JSONB,
             allowNull: false,
+        },
+        status: {
+            type: DataTypes.ENUM('responded', 'not responded', 'missed'),
+            allowNull: false,
+            defaultValue: 'not responded',
         },
         submitted_at: {
             type: DataTypes.DATE,

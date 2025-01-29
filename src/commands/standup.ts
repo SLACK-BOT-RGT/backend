@@ -44,6 +44,9 @@ export const StartStandup = async ({ command, ack, respond, client }: commandPro
             where: {
                 config_id: teamConfig.id,
                 user_id: command.user_id,
+                status: {
+                    [Op.or]: ['responded', 'missed'],
+                },
                 submitted_at: {
                     [Op.gte]: today
                 }
@@ -51,7 +54,10 @@ export const StartStandup = async ({ command, ack, respond, client }: commandPro
         });
 
         if (existingStandup) {
-            await respond("Today's standup has already been started!");
+            console.log('====================================');
+            console.log(existingStandup.dataValues);
+            console.log('====================================');
+            await respond("Today's standup has already been submitted or missed!");
             return;
         }
 
@@ -86,6 +92,8 @@ export const StartStandup = async ({ command, ack, respond, client }: commandPro
             } as any);
         });
 
+        // TODO: Mood Tracking Question ( Create questions here)
+        blocks.push()
         // Open modal for standup response
         await client.views.open({
             trigger_id: command.trigger_id,

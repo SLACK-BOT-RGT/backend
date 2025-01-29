@@ -94,8 +94,8 @@ export const get_team_members_today_status = async ({ team_id }: { team_id: stri
 
                 return {
                     name: member.dataValues.User.name,
-                    status: existingStandup ? "Responded" : "Missed",
-                    time: existingStandup?.dataValues.submitted_at || "-",
+                    status: existingStandup?.status,
+                    time: existingStandup?.status !== 'responded' ? '-' : existingStandup?.submitted_at,
                 };
             })
         );
@@ -133,8 +133,8 @@ export const get_team_members_week_status = async ({ team_id }: { team_id: strin
 
                 return {
                     name: member.dataValues.User.name,
-                    status: existingStandup ? "Responded" : "Missed",
-                    time: existingStandup?.dataValues.submitted_at || "-",
+                    status: existingStandup?.status,
+                    time: existingStandup?.status !== 'responded' ? '-' : existingStandup?.submitted_at,
                 };
             })
         );
