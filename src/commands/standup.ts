@@ -92,6 +92,8 @@ export const StartStandup = async ({ command, ack, respond, client }: commandPro
             } as any);
         });
 
+        // TODO: Mood Tracking Question ( Create questions here)
+        blocks.push()
         // Open modal for standup response
         await client.views.open({
             trigger_id: command.trigger_id,

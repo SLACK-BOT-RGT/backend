@@ -54,9 +54,14 @@ export const StandupResponseModalSubmission = async ({ ack, body, view, client }
         });
 
         if (!existingStandup) {
+
             await create_standup_responses({ config_id: teamConfig.id, responses, user_id: body.user.id, status: 'responded' });
+            // TODO: Mood Tracking Question ( Grab answer and save it in the database)
+
         } else {
             if (existingStandup.status == 'not responded') {
+                // TODO: Mood Tracking Question ( Grab answer and save it in the database)
+
                 await update_standup_response({ config_id: teamConfig.id, responses, user_id: body.user.id, id: existingStandup.id, submitted_at: today, status: 'responded' });
             }
 
