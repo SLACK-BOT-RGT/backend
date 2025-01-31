@@ -45,18 +45,18 @@ server.use('/api/standup-responses', standupResponsesRoutes);
 
     await sequelize.sync({ force: false });
 
-    scheduleStandups();
+    // scheduleStandups();
 
 
-    const userList = await client.users.list({});
-    const members = userList.members;
+    // const userList = await client.users.list({});
+    // const members = userList.members;
 
-    console.log('====================================');
-    console.log(members);
-    console.log('====================================');
+    // console.log('====================================');
+    // console.log(members);
+    // console.log('====================================');
     // fetchAllChannels();
 
-    scheduleUserMonitoring();
+    // scheduleUserMonitoring();
 
     console.log('Database synchronized successfully.');
     await app.start(process.env.PORT || 3000);

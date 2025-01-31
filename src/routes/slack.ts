@@ -5,6 +5,8 @@ import { AddTeamMemberModalSubmission, RemoveTeamMemberModalSubmission } from '.
 import { App, StringIndexed } from '@slack/bolt';
 import { CreateTeamAction, RemoveTeamAction } from '../actions/team';
 import { CreateTeamModalSubmission, RemoveTeamModalSubmission } from '../views/team';
+import { GiveKudos } from '../commands/kudos';
+import { HandleKudosSubmission } from '../views/kudos';
 import { openHomePageEvent } from '../events/appHomeOpenedEvent';
 import { StandupResponseModalSubmission } from '../views/standup';
 import { StartStandup, SkipStandup, ViewTodayStandups } from '../commands/standup';
@@ -24,6 +26,7 @@ export default function setupSlackRoutes(app: App<StringIndexed>) {
     app.command("/view-standups", ViewTodayStandups);
     app.command("/set-questions", SetQuestions);
     app.command("/set-reminder", SetReminder);
+    app.command("/kudos", GiveKudos)
 
     // Events
     app.event('app_home_opened', openHomePageEvent);
@@ -41,5 +44,6 @@ export default function setupSlackRoutes(app: App<StringIndexed>) {
     app.view("remove_team_modal", RemoveTeamModalSubmission);
     app.view("add_team_member_modal", AddTeamMemberModalSubmission);
     app.view("remove_team_member_modal", RemoveTeamMemberModalSubmission);
+    app.view("submit_kudos", HandleKudosSubmission);
 }
 
