@@ -76,4 +76,11 @@ Kudos.init(
     }
 );
 
+User.hasMany(Kudos, { foreignKey: 'from_user_id' });
+User.hasMany(Kudos, { foreignKey: 'to_user_id' });
+Kudos.belongsTo(User, { foreignKey: 'from_user_id' });
+Kudos.belongsTo(User, { foreignKey: 'to_user_id' });
+Team.hasMany(Kudos, { foreignKey: 'team_id' });
+Kudos.belongsTo(Team, { foreignKey: 'team_id' });
+
 export default Kudos;
