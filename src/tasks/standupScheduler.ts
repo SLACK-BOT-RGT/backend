@@ -4,12 +4,14 @@ import { Op } from 'sequelize';
 import { StandupConfigsModel, StandupResponseModel, TeamMemberModel, TeamModel, UserModel } from '../model';
 import cron from 'node-cron';
 import moment from 'moment-timezone';
+import { sendPollToChannel } from './poll';
 
 export const scheduleStandups = () => {
     // Run every minute to check for standups
     cron.schedule('* * * * *', async () => {
         try {
             console.log("Running standup scheduler...");
+            await sendPollToChannel("2");
 
             const now = moment.utc(); // Current UTC time
 

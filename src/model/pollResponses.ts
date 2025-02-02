@@ -12,11 +12,7 @@ interface PollResponseAttributes {
     submitted_at: Date;
 }
 
-interface PollResponseCreationAttributes
-    extends Optional<PollResponseAttributes, 'id' | 'submitted_at'> { }
-
-class PollResponse extends Model<PollResponseAttributes, PollResponseCreationAttributes>
-    implements PollResponseAttributes {
+class PollResponse extends Model {
     public id!: number;
     public poll_id!: number;
     public user_id!: string;
