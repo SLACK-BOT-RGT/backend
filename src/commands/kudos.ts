@@ -19,6 +19,8 @@ const KUDOS_TYPES = [
     { text: "👍 Thumbs Up (1 point)", value: "thumbs" }
 ];
 
+const KUDOS_CATEGORY = ["Helpful", "Innovation", "Teamwork"];
+
 export const GiveKudos = async ({ command, ack, respond, client }: CommandProps) => {
     try {
         await ack();
@@ -82,13 +84,13 @@ export const GiveKudos = async ({ command, ack, respond, client }: CommandProps)
                         block_id: "selected_member",
                         text: {
                             type: "mrkdwn",
-                            text: "Pick an item from the dropdown list"
+                            text: "Pick a member from the dropdown list"
                         },
                         accessory: {
                             type: "static_select",
                             placeholder: {
                                 type: "plain_text",
-                                text: "Select an item",
+                                text: "Select",
                                 emoji: true
                             },
                             options: memberOptions,
@@ -108,6 +110,40 @@ export const GiveKudos = async ({ command, ack, respond, client }: CommandProps)
                         },
                         label: { type: "plain_text", text: "Kudos Type" }
                     },
+                    {
+                        type: "section",
+                        block_id: "kudos_category_block",
+                        text: {
+                            type: "mrkdwn",
+                            text: "Pick a category from the dropdown list"
+                        },
+                        accessory: {
+                            type: "static_select",
+                            placeholder: {
+                                type: "plain_text",
+                                text: "Select",
+                                emoji: true
+                            },
+                            options: KUDOS_CATEGORY.map(type => ({
+                                text: { type: "plain_text", text: type },
+                                value: type
+                            })),
+                            action_id: "kudos_category"
+                        }
+                    },
+                    // {
+                    //     type: "input",
+                    //     block_id: "kudos_category_block",
+                    //     element: {
+                    //         type: "radio_buttons",
+                    //         action_id: "kudos_category",
+                    //         options: KUDOS_CATEGORY.map(type => ({
+                    //             text: { type: "plain_text", text: type },
+                    //             value: type
+                    //         }))
+                    //     },
+                    //     label: { type: "plain_text", text: "Kudos Type" }
+                    // },
                     {
                         type: "input",
                         block_id: "message_block",

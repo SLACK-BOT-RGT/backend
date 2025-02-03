@@ -10,7 +10,7 @@ export const create_standup_config = async (standconfigData: IStandupConfig) => 
     const { team_id, questions, reminder_days, reminder_time, due_time } = standconfigData;
 
     const standconfig = await StandupConfigsModel.create({
-        team_id, questions, reminder_days, reminder_time,
+        team_id, questions, reminder_days, reminder_time, due_time
     });
 
     return standconfig.dataValues;
@@ -54,7 +54,4 @@ export const update_standup_config = async (standconfigData: IStandupConfig) => 
         return { data: standconfig.dataValues, status: 200 };
 
     }
-
-
-
 }

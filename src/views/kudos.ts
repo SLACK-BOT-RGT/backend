@@ -2,6 +2,7 @@ import Kudos from "../model/kudos";
 import { Op } from "sequelize";
 import { AckFn, RespondFn, SlackViewAction, ViewOutput, ViewResponseAction } from "@slack/bolt";
 import { Logger, WebClient } from "@slack/web-api";
+import { KUDOS_VALUES } from "../constants/constants";
 
 interface ModalSubmissionProps {
     ack: AckFn<void> | AckFn<ViewResponseAction>;
@@ -13,6 +14,7 @@ interface ModalSubmissionProps {
 }
 
 type kudosType = 'rocket' | 'heart' | 'thumbs';
+type kudosCategory = 'Helpful' | 'Innovation' | 'Teamwork';
 
 
 export const HandleKudosSubmission = async ({ ack, body, view, client, logger }: ModalSubmissionProps) => {
@@ -23,7 +25,11 @@ export const HandleKudosSubmission = async ({ ack, body, view, client, logger }:
     const recipient = view.state.values['selected_member']['static_selected_member']['selected_option']?.value;
     const message = view.state.values['message_block']['message'].value || '';
     const kudosType = (view.state.values['kudos_type_block']['kudos_type']['selected_option']?.value as kudosType) || 'thumbs';
+    const kudosCategory = (view.state.values['kudos_category_block']['kudos_category']['selected_option']?.value as kudosCategory) || 'Teamwork';
 
+    console.log('====================================');
+    console.log(recipient, message, kudosCategory, kudosType);
+    console.log('====================================');
 
     if (!recipient || !message || !kudosType) {
         await client.chat.postMessage({
@@ -33,8 +39,8 @@ export const HandleKudosSubmission = async ({ ack, body, view, client, logger }:
         return;
     }
 
-    const kudosValues = { rocket: 3, heart: 2, thumbs: 1 };
-    const kudosPoints = kudosValues[kudosType];
+
+    const kudosPoints = KUDOS_VALUES[kudosType];
 
 
     // // Check user's daily kudos count
@@ -47,7 +53,7 @@ export const HandleKudosSubmission = async ({ ack, body, view, client, logger }:
         }
     });
 
-    const usedKudos = kudosGiven.reduce((sum, k) => sum + kudosValues[k.category as kudosType], 0);
+    const usedKudos = kudosGiven.reduce((sum, k) => sum + KUDOS_VALUES[k.type as kudosType], 0);
     if (usedKudos + kudosPoints > 3) {
         await client.chat.postMessage({
             channel: from_user_id,
@@ -61,7 +67,8 @@ export const HandleKudosSubmission = async ({ ack, body, view, client, logger }:
         from_user_id,
         to_user_id: recipient,
         team_id,
-        category: kudosType,
+        category: kudosCategory,
+        type: kudosType,
         message,
         created_at: new Date()
     });

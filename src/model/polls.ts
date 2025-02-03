@@ -3,32 +3,37 @@ import sequelize from '../config/database';
 import User from './user';
 import Team from './team';
 
+interface PollOption {
+    id: string;
+    text: string;
+    votes: number;
+    voters?: { id: string, name: string }[];
+}
+
 interface PollAttributes {
     id: number;
     team_id: string;
-    created_by_id: string;
-    title: string;
-    options: any; // Using 'any' for JSONB type
+    creator_id: string;
+    question: string;
+    options: PollOption[];
     is_anonymous: boolean;
-    expires_at: Date;
-    created_at: Date;
+    start_time: Date;
+    end_time: Date;
+    status: 'draft' | 'active' | 'closed';
+    total_votes: number;
 }
 
-interface PollCreationAttributes
-    extends Optional<PollAttributes, 'id' | 'is_anonymous' | 'created_at'> { }
-
-class Poll extends Model<PollAttributes, PollCreationAttributes>
-    implements PollAttributes {
+class Poll extends Model {
     public id!: number;
     public team_id!: string;
-    public created_by_id!: string;
-    public title!: string;
-    public options!: any;
+    public creator_id!: string;
+    public question!: string;
+    public options!: PollOption[];
     public is_anonymous!: boolean;
-    public expires_at!: Date;
-    public created_at!: Date;
-    public readonly createdAt!: Date;
-    public readonly updatedAt!: Date;
+    public start_time!: Date;
+    public end_time!: Date;
+    // public status!: 'draft' | 'active' | 'closed';
+    public total_votes!: number;
 }
 
 Poll.init(
@@ -44,13 +49,13 @@ Poll.init(
             references: { model: Team, key: 'id' },
             onDelete: 'CASCADE',
         },
-        created_by_id: {
+        creator_id: {
             type: DataTypes.STRING,
             allowNull: false,
             references: { model: User, key: 'id' },
             onDelete: 'CASCADE',
         },
-        title: {
+        question: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -63,15 +68,23 @@ Poll.init(
             allowNull: false,
             defaultValue: false,
         },
-        expires_at: {
+        start_time: {
             type: DataTypes.DATE,
             allowNull: false,
         },
-        created_at: {
+        end_time: {
             type: DataTypes.DATE,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
         },
+        // status: {
+        //     type: DataTypes.STRING,
+        //     allowNull: false,
+        // },
+        total_votes: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
+        }
     },
     {
         sequelize,
@@ -80,5 +93,10 @@ Poll.init(
         timestamps: true,
     }
 );
+
+Team.hasMany(Poll, { foreignKey: 'team_id' });
+Poll.belongsTo(Team, { foreignKey: 'team_id' });
+User.hasMany(Poll, { foreignKey: 'creator_id' });
+Poll.belongsTo(User, { foreignKey: 'creator_id' });
 
 export default Poll;

@@ -8,6 +8,7 @@ interface KudosAttributes {
     from_user_id: string;
     to_user_id: string;
     team_id: string;
+    type: string;
     category: string;
     message: string;
     created_at: Date;
@@ -23,6 +24,7 @@ class Kudos extends Model<KudosAttributes, KudosCreationAttributes>
     public to_user_id!: string;
     public team_id!: string;
     public category!: string;
+    public type!: string;
     public message!: string;
     public created_at!: Date;
     public readonly createdAt!: Date;
@@ -53,6 +55,10 @@ Kudos.init(
             allowNull: false,
             references: { model: Team, key: 'id' },
             onDelete: 'CASCADE',
+        },
+        type: {
+            type: DataTypes.STRING,
+            allowNull: false,
         },
         category: {
             type: DataTypes.STRING,

@@ -11,6 +11,7 @@ import { openHomePageEvent } from '../events/appHomeOpenedEvent';
 import { StandupResponseModalSubmission } from '../views/standup';
 import { StartStandup, SkipStandup, ViewTodayStandups } from '../commands/standup';
 import { SubmitStandupAction } from '../actions/standup';
+import { VoteOnPollAction } from '../actions/poll';
 
 export default function setupSlackRoutes(app: App<StringIndexed>) {
     // Commands
@@ -27,6 +28,7 @@ export default function setupSlackRoutes(app: App<StringIndexed>) {
     app.command("/set-questions", SetQuestions);
     app.command("/set-reminder", SetReminder);
     app.command("/kudos", GiveKudos)
+    app.command("/poll", GiveKudos)
 
     // Events
     app.event('app_home_opened', openHomePageEvent);
@@ -37,6 +39,7 @@ export default function setupSlackRoutes(app: App<StringIndexed>) {
     app.action('add_team_member', AddTeamMemberAction);
     app.action('remove_team_member', RemoveTeamMemberAction);
     app.action('submit_standup', SubmitStandupAction);
+    app.action(/vote_\d+/, VoteOnPollAction);
 
     // Views
     app.view("standup_response_modal", StandupResponseModalSubmission);
