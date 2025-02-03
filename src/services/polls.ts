@@ -55,6 +55,20 @@ export const get_poll_by_id = async ({ id }: { id: string }) => {
     return poll?.dataValues;
 }
 
+export const delete_poll_by_id = async ({ id }: { id: string }) => {
+
+    const poll = await PollModel.findByPk(id);
+
+    if (!poll) throw new CustomError("Poll not found", 404);
+
+    const pollData = poll?.dataValues;
+
+    poll?.destroy();
+
+    return pollData;
+}
+
+
 
 
 interface IVote {

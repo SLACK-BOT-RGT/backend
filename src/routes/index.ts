@@ -7,3 +7,4 @@ export { default as standupResponsesRoutes } from "./standup_response";
 export { default as magicLinkRoutes } from "./magic_link";
 export { default as authRoutes } from "./auth";
 export { default as pollsRoutes } from "./polls";
+export { default as kudosRoutes } from "./kudos";

@@ -11,7 +11,6 @@ export const scheduleStandups = () => {
     cron.schedule('* * * * *', async () => {
         try {
             console.log("Running standup scheduler...");
-            await sendPollToChannel("2");
 
             const now = moment.utc(); // Current UTC time
 

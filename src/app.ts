@@ -5,7 +5,7 @@ import express, { Request, Response } from 'express';
 dotenv.config();
 
 
-import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes, standupResponsesRoutes, magicLinkRoutes, authRoutes, pollsRoutes } from './routes';
+import { usersRoutes, slackRoutes, teamsRoutes, teamMembersRoutes, standupConfiqRoutes, standupResponsesRoutes, magicLinkRoutes, authRoutes, pollsRoutes, kudosRoutes } from './routes';
 import { app } from './config/app.config';
 import { authenticateToken } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
@@ -39,6 +39,7 @@ server.use('/api/team-members', teamMembersRoutes);
 server.use('/api/standup-config', standupConfiqRoutes);
 server.use('/api/standup-responses', standupResponsesRoutes);
 server.use('/api/polls', pollsRoutes);
+server.use('/api/kudos', kudosRoutes);
 
 (async () => {
     // Start the app
