@@ -122,7 +122,7 @@ export const vote_on_poll = async ({ poll_id, user_id, option_id }: IVote) => {
             updatedOptions[newOptionIndex] = {
                 ...updatedOptions[newOptionIndex],
                 votes: (updatedOptions[newOptionIndex].votes || 0) + 1,
-                voters: [...(updatedOptions[newOptionIndex].voters || []), { id: user_id, name: user.name }] // Add voter object
+                voters: [...(updatedOptions[newOptionIndex].voters || []), { id: user_id, name: user.name, submitted_at: new Date() }] // Add voter object
             };
         }
 

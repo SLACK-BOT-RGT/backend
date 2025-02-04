@@ -14,7 +14,7 @@ interface ModalSubmissionProps {
 }
 
 type kudosType = 'rocket' | 'heart' | 'thumbs';
-type kudosCategory = 'Helpful' | 'Innovation' | 'Teamwork';
+type kudosCategory = "Helpful" | "Innovation" | "Teamwork" | "Leadership" | "Support";
 
 
 export const HandleKudosSubmission = async ({ ack, body, view, client, logger }: ModalSubmissionProps) => {

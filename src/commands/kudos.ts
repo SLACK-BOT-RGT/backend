@@ -5,6 +5,7 @@ import { WebClient } from "@slack/web-api";
 import Kudos from "../model/kudos";
 import TeamModel from "../model/team";
 import User from "../model/user";
+import { KUDOS_CATEGORY } from "../constants/constants";
 
 interface CommandProps {
     command: SlashCommand;
@@ -19,7 +20,6 @@ const KUDOS_TYPES = [
     { text: "👍 Thumbs Up (1 point)", value: "thumbs" }
 ];
 
-const KUDOS_CATEGORY = ["Helpful", "Innovation", "Teamwork"];
 
 export const GiveKudos = async ({ command, ack, respond, client }: CommandProps) => {
     try {
