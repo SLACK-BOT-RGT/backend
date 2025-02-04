@@ -50,5 +50,5 @@ export interface IPollOption {
     id: string;
     text: string;
     votes: number;
-    voters?: { id: string, name: string }[];
+    voters?: { id: string, name: string, submitted_at: Date }[];
 }

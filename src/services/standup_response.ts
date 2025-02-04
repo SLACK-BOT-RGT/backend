@@ -31,6 +31,7 @@ export const create_standup_responses = async (standconfigResponsesData: IStandu
         user_id: user_id,
         config_id: config_id,
         responses,
+        submitted_at: today
     });
 
     return standupresponses.dataValues;
@@ -96,6 +97,10 @@ export const get_drafted_standup_responses = async () => {
 
             const user = users.find((user) => user.id === response.user_id);
             const standupConfig = castedResponse.StandupConfig;
+
+            console.log('====================================');
+            console.log(response);
+            console.log('====================================');
 
             return {
                 member: user?.name || "Unknown Member",
