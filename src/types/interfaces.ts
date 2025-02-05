@@ -52,3 +52,13 @@ export interface IPollOption {
     votes: number;
     voters?: { id: string, name: string, submitted_at: Date }[];
 }
+
+export interface IMoodTracking {
+    id?: number;
+    user_id: string;
+    team_id: string;
+    mood_score: number;
+    is_anonymous: boolean;
+    note: string | null;
+    created_at?: Date;
+}
