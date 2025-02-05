@@ -9,3 +9,4 @@ export { default as authRoutes } from "./auth";
 export { default as pollsRoutes } from "./polls";
 export { default as kudosRoutes } from "./kudos";
 export { default as metricsRoutes } from "./metrics";
+export { default as moodsRoutes } from "./moodTracking";

@@ -18,7 +18,7 @@ const getWeekOfMonth = (date: Date) => {
     return Math.ceil(day / 7); // 1st-7th -> W1, 8th-14th -> W2, etc.
 };
 
-export const get_combined_metrics = async ({ month }: { month?: Date }) => {
+export const get_combined_metrics = async ({ team_id, month }: { team_id: string, month?: Date }) => {
     // If month is undefined, use the current month
     const targetDate = month || new Date();
 
@@ -40,6 +40,7 @@ export const get_combined_metrics = async ({ month }: { month?: Date }) => {
     // Fetch data for the specific month
     const kudos = await KudosModel.findAll({
         where: {
+            team_id,
             created_at: {
                 [Op.between]: [startOfMonth, endOfMonth],
             },
@@ -48,6 +49,7 @@ export const get_combined_metrics = async ({ month }: { month?: Date }) => {
 
     const polls = await PollModel.findAll({
         where: {
+            team_id,
             end_time: {
                 [Op.between]: [startOfMonth, endOfMonth],
             },
@@ -75,7 +77,7 @@ export const get_combined_metrics = async ({ month }: { month?: Date }) => {
 };
 
 
-export const get_kudos_category = async ({ month }: { month?: Date }) => {
+export const get_kudos_category = async ({ team_id, month }: { team_id: string, month?: Date }) => {
     const targetDate = month || new Date();
 
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
@@ -83,6 +85,7 @@ export const get_kudos_category = async ({ month }: { month?: Date }) => {
 
     const kudos = await KudosModel.findAll({
         where: {
+            team_id,
             created_at: {
                 [Op.between]: [startOfMonth, endOfMonth],
             },
@@ -154,7 +157,7 @@ interface CombinedResponseTimesMap {
 }
 
 type FastestUser = { userId: string; name: string; avgResponseTime: number } | null;
-export const get_quickest_responder = async ({ month }: { month?: Date }) => {
+export const get_quickest_responder = async ({ team_id, month }: { team_id: string, month?: Date }) => {
     // Step 1: Calculate the target month (default to the current month if not provided)
     const targetDate = month || new Date();
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
@@ -202,6 +205,7 @@ export const get_quickest_responder = async ({ month }: { month?: Date }) => {
 
     // Step 3: Calculate average poll response time per user for the specific month
     const pollResponses = await PollModel.findAll({
+        where: { team_id },
         attributes: ['options', 'start_time'],
         include: [{
             model: UserModel,

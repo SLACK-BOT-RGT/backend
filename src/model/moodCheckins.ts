@@ -2,25 +2,19 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
 import User from './user';
 import Team from './team';
+import { IMoodTracking } from '../types/interfaces';
 
-interface MoodCheckinAttributes {
-    id: number;
-    user_id: string;
-    team_id: string;
-    mood_score: number;
-    note: string | null;
-    created_at: Date;
-}
 
 interface MoodCheckinCreationAttributes
-    extends Optional<MoodCheckinAttributes, 'id' | 'note' | 'created_at'> { }
+    extends Optional<IMoodTracking, 'id' | 'note' | 'created_at'> { }
 
-class MoodCheckin extends Model<MoodCheckinAttributes, MoodCheckinCreationAttributes>
-    implements MoodCheckinAttributes {
+class MoodCheckin extends Model<IMoodTracking, MoodCheckinCreationAttributes>
+    implements IMoodTracking {
     public id!: number;
     public user_id!: string;
     public team_id!: string;
     public mood_score!: number;
+    public is_anonymous!: boolean;
     public note!: string | null;
     public created_at!: Date;
     public readonly createdAt!: Date;
@@ -58,6 +52,11 @@ MoodCheckin.init(
             type: DataTypes.TEXT,
             allowNull: true,
         },
+        is_anonymous: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
+        },
         created_at: {
             type: DataTypes.DATE,
             allowNull: false,
@@ -71,5 +70,10 @@ MoodCheckin.init(
         timestamps: true,
     }
 );
+
+User.hasMany(MoodCheckin, { foreignKey: 'user_id' });
+MoodCheckin.belongsTo(User, { foreignKey: 'user_id' });
+Team.hasMany(MoodCheckin, { foreignKey: 'team_id' });
+MoodCheckin.belongsTo(Team, { foreignKey: 'team_id' });
 
 export default MoodCheckin;

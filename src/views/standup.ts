@@ -4,6 +4,7 @@ import { Logger, WebClient } from "@slack/web-api";
 import { StandupConfigsModel, StandupResponseModel } from "../model";
 import { create_standup_responses, update_standup_response } from "../services/standup_response";
 import { Op } from 'sequelize';
+import { create_mood, update_mood } from "../services/mood_tracking";
 
 interface ModalSubmissionProps {
     ack: AckFn<void> | AckFn<ViewResponseAction>;
@@ -19,6 +20,21 @@ export const StandupResponseModalSubmission = async ({ ack, body, view, client }
 
     try {
         const { team_id } = JSON.parse(view.private_metadata);
+        console.log('====================================');
+        console.log(view.state.values);
+        console.log('====================================');
+        // Extract mood tracking data
+        const moodTrackingValues = view.state.values.mood_tracking.mood_selection;
+        const moodScore = moodTrackingValues.selected_option
+            ? Number.parseInt(moodTrackingValues.selected_option.value)
+            : 0;
+        const moodNote = view.state.values.mood_reason.mood_reason_input.value || ''
+        const isAnonymous = (view.state.values.anonymous_option?.anonymous_selection?.selected_options)?.length ? true : false;
+
+        console.log('====================================');
+        console.log(moodScore, moodNote, isAnonymous);
+        console.log('====================================');
+
         const teamConfig = await StandupConfigsModel.findOne({
             where: {
                 team_id: team_id,
@@ -57,12 +73,14 @@ export const StandupResponseModalSubmission = async ({ ack, body, view, client }
 
             await create_standup_responses({ config_id: teamConfig.id, responses, user_id: body.user.id, status: 'responded' });
             // TODO: Mood Tracking Question ( Grab answer and save it in the database)
+            await create_mood({ is_anonymous: isAnonymous, mood_score: moodScore, note: moodNote, team_id: team_id, user_id: body.user.id });
 
         } else {
             if (existingStandup.status == 'not responded') {
-                // TODO: Mood Tracking Question ( Grab answer and save it in the database)
-
                 await update_standup_response({ config_id: teamConfig.id, responses, user_id: body.user.id, id: existingStandup.id, submitted_at: today, status: 'responded' });
+
+                // TODO: Mood Tracking Question ( Grab answer and save it in the database)
+                await update_mood({ is_anonymous: isAnonymous, mood_score: moodScore, note: moodNote, team_id: team_id, user_id: body.user.id });
             }
 
         }
