@@ -10,6 +10,7 @@ interface MoodCheckinAttributes {
     mood_score: number;
     note: string | null;
     created_at: Date;
+    is_anonymous: boolean;
 }
 
 interface MoodCheckinCreationAttributes
@@ -23,6 +24,7 @@ class MoodCheckin extends Model<MoodCheckinAttributes, MoodCheckinCreationAttrib
     public mood_score!: number;
     public note!: string | null;
     public created_at!: Date;
+    public is_anonymous!: boolean;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }
@@ -62,6 +64,11 @@ MoodCheckin.init(
             type: DataTypes.DATE,
             allowNull: false,
             defaultValue: DataTypes.NOW,
+        },
+        is_anonymous: { // Add this block
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
     },
     {

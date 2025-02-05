@@ -4,7 +4,7 @@ import { authorizeAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
-router.post('/', authorizeAdmin(), createStandupConfigRequest);
+router.post('/', createStandupConfigRequest);
 
 router.get('/:team_id', getTeamStandupConfigRequest);
 

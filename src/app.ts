@@ -11,6 +11,7 @@ import { authenticateToken } from './middleware/auth';
 import { errorHandler } from './middleware/errorHandler';
 import { scheduleStandups } from './tasks/standupScheduler';
 import { scheduleUserMonitoring } from './tasks/userMonitoring';
+import moodtrackingRoutes from "./routes/mood";
 import { WebClient } from '@slack/web-api';
 import sequelize from './config/database';
 
@@ -38,6 +39,7 @@ server.use('/api/teams', teamsRoutes);
 server.use('/api/team-members', teamMembersRoutes);
 server.use('/api/standup-config', standupConfiqRoutes);
 server.use('/api/standup-responses', standupResponsesRoutes);
+server.use('/api/mood', moodtrackingRoutes);
 
 (async () => {
     // Start the app

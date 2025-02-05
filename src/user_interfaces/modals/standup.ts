@@ -78,7 +78,95 @@ export const submitStandupModal = async (userId: string, client: any, triggerId:
                         action_id: `response_${index}`,
                         multiline: true
                     }
-                })) as any // Dynamically add each question as a block
+                })) as any, // Dynamically add each question as a block
+                // TODO: mood blocks
+                {
+                    type: "input",
+                    block_id: "mood_tracking",
+                    element: {
+                      type: "radio_buttons",
+                      options: [
+                        {
+                            text: {
+                              type: "plain_text",
+                              text: "😢 Very Unhappy",
+                            },
+                            value: "1",
+                          },
+                          {
+                            text: {
+                              type: "plain_text",
+                              text: "🙁 Unhappy",
+                            },
+                            value: "2",
+                          },
+                          {
+                            text: {
+                              type: "plain_text",
+                              text: "😐 Neutral",
+                            },
+                            value: "3",
+                          },
+                          {
+                            text: {
+                              type: "plain_text",
+                              text: "🙂 Happy",
+                            },
+                            value: "4",
+                          },
+                          {
+                            text: {
+                              type: "plain_text",
+                              text: "😄 Very Happy",
+                            },
+                            value: "5",
+                          },
+                      ],
+                      action_id: "mood_selection",
+                    },
+                    label: {
+                      type: "plain_text",
+                      text: "How is your mood today?",
+                    },
+                  },
+                  {
+                    type: "input",
+                    block_id: "mood_reason",
+                    element: {
+                      type: "plain_text_input",
+                      action_id: "mood_reason_input",
+                      multiline: true,
+                      placeholder: {
+                        type: "plain_text",
+                        text: "You can state the reasons for your mood here...",
+                      },
+                    },
+                    label: {
+                      type: "plain_text",
+                      text: "Reason for your mood",
+                    },
+                  },
+                  {
+                    type: "input",
+                    block_id: "anonymous_option",
+                    element: {
+                      type: "checkboxes",
+                      options: [
+                        {
+                          text: {
+                            type: "plain_text",
+                            text: "Submit mood anonymously",
+                          },
+                          value: "anonymous",
+                        },
+                      ],
+                      action_id: "anonymous_selection",
+                    },
+                    label: {
+                      type: "plain_text",
+                      text: "Anonymity",
+                    },
+                  },
             ];
 
             // Open the modal for standup response
