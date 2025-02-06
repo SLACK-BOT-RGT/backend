@@ -17,7 +17,7 @@ export const create_mood = async (data: IMoodTracking) => {
     }
 }
 
-export const update_mood = async ({ id, is_anonymous, mood_score, note, team_id, user_id, created_at }: IMoodTracking) => {
+export const update_mood = async ({ id, is_anonymous, mood_score, note, team_id, user_id }: IMoodTracking) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -104,3 +104,43 @@ export const get_team_monthly_moods = async ({ month }: { month?: Date }) => {
 
     return kudos;
 }
+
+
+export const get_daily_moods = async ({ team_id, month }: { team_id: string, month?: Date }) => {
+    const targetDate = month ? new Date(month) : new Date();
+
+    const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1, 0, 0, 0);
+    const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    const moods = await MoodModel.findAll({
+        where: {
+            team_id: team_id,
+            created_at: {
+                [Op.between]: [startOfMonth, endOfMonth],
+            },
+        },
+    });
+
+    // Initialize an object to hold moods grouped by user ID
+    const userMoods: { [userId: string]: { date: string; mood: number; note: string }[] } = {};
+
+    moods.forEach((mood) => {
+        const userId = mood.user_id; // Use user_id as the key
+        const date = new Date(mood.created_at).getDate().toString(); // Extract day of the month as string
+        const moodScore = mood.mood_score as number;
+        const note = mood.note || '';
+
+        if (!userMoods[userId]) {
+            userMoods[userId] = [];
+        }
+
+        userMoods[userId].push({
+            date,
+            mood: moodScore,
+            note,
+        });
+    });
+
+    return userMoods;
+};
+
