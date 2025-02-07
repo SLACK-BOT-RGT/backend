@@ -2,7 +2,7 @@ import { WebClient } from "@slack/web-api";
 import { AckFn, RespondArguments, RespondFn, SlashCommand } from "@slack/bolt";
 import TeamModel from "../model/team";
 import StandupConfigsModel from "../model/standupConfigs";
-import { create_Team } from "../services/team";
+import { create_team } from "../services/team";
 import { TeamMemberModel } from "../model";
 
 interface commandProps {
@@ -36,7 +36,7 @@ export const AddTeam = async ({ command, ack, respond, client }: commandProps) =
         if (channelResponse.ok && channelResponse.channel?.id) {
             const channelId = channelResponse.channel.id;
 
-            await create_Team({ id: channelId, name, description });
+            await create_team({ id: channelId, name, description });
 
             // Ensure the bot joins the channel
             // await client.conversations.join({ channel: channelId });

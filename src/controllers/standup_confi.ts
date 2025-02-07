@@ -8,6 +8,9 @@ export const createStandupConfigRequest = async (req: Request, res: Response, ne
     try {
         const { team_id, reminder_days, reminder_time, questions, due_time } = req.body;
 
+        console.log('====================================');
+        console.log("IN");
+        console.log('====================================');
         const team = await get_team_by_id({ id: team_id });
         if (!team) throw new CustomError("Team not found", 404);
 
@@ -18,6 +21,9 @@ export const createStandupConfigRequest = async (req: Request, res: Response, ne
 
         res.status(201).json({ data: newQuestion, success: true });
     } catch (error) {
+        console.log('====================================');
+        console.log(error);
+        console.log('====================================');
         next(error);
     }
 };

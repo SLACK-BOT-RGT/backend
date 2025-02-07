@@ -172,10 +172,6 @@ export const ListAllUsers = async ({ command, ack, respond, client }: commandPro
             .map((user) => `- ${user.profile?.real_name || user.name} (${user.profile?.email || "No email"})`)
             .join("\n");
 
-        console.log('====================================');
-        console.log(members);
-        console.log('====================================');
-
         // Respond with the list of users
         respond(`Here is the list of all users:\n${userDetails}`);
     } catch (error) {

@@ -47,12 +47,12 @@ StandupConfigs.init(
             defaultValue: null,
         },
         reminder_time: {
-            type: DataTypes.TIME,
+            type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },
         due_time: {
-            type: DataTypes.TIME,
+            type: DataTypes.STRING,
             allowNull: true,
             defaultValue: null,
         },

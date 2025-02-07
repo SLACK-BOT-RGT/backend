@@ -49,7 +49,8 @@ server.use('/api/moods', moodsRoutes);
 
     await sequelize.sync({ force: false });
 
-    // scheduleStandups();
+    scheduleStandups();
+    // scheduleUserMonitoring();
 
 
     // const userList = await client.users.list({});
@@ -60,7 +61,10 @@ server.use('/api/moods', moodsRoutes);
     // console.log('====================================');
     // fetchAllChannels();
 
-    // scheduleUserMonitoring();
+
+    // Call function
+    // processChannels();
+    // removeAllMembers();
 
     console.log('Database synchronized successfully.');
     await app.start(process.env.PORT || 3000);

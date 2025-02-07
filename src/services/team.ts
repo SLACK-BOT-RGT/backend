@@ -8,7 +8,7 @@ interface createTeamProps {
     description: string;
 }
 
-export const create_Team = async ({ id, name, description }: createTeamProps) => {
+export const create_team = async ({ id, name, description }: createTeamProps) => {
     const team = await TeamModel.create({ id, name: name.toLowerCase().replace(/\s+/g, "-"), description });
 
     return team.dataValues;

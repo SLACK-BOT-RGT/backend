@@ -19,11 +19,11 @@ export const getMoodRequest = async (req: Request, res: Response, next: NextFunc
 export const getDailyMoodRequest = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { team_id } = req.params;
-        const { month } = req.query;
+        const { month, is_admin } = req.query;
 
         // If a month is provided, parse it; otherwise, it will be undefined
         const monthDate = month ? new Date(month as string) : undefined;
-        const moods = await get_daily_moods({ team_id, month: monthDate });
+        const moods = await get_daily_moods({ team_id, month: monthDate, is_admin: is_admin == "true" ? true : false });
 
         res.status(200).json({ data: moods, success: true });
     } catch (error) {

@@ -2,7 +2,6 @@ import { MoodModel } from "../model";
 import MoodCheckin from "../model/moodCheckins"
 import { IMoodTracking } from "../types/interfaces"
 import { Op } from "sequelize";
-import { CustomError } from "../utils/CustomError";
 
 export const create_mood = async (data: IMoodTracking) => {
     try {
@@ -31,7 +30,10 @@ export const update_mood = async ({ id, is_anonymous, mood_score, note, team_id,
         }
     });
 
-    if (!mood) throw new CustomError(`Mood with id ${id} not found`, 404);
+    if (!mood) {
+        const newMood = await create_mood({ is_anonymous, mood_score, note, user_id, team_id });
+        return newMood;
+    }
 
     await mood.update({
         is_anonymous, mood_score, note
@@ -106,7 +108,7 @@ export const get_team_monthly_moods = async ({ month }: { month?: Date }) => {
 }
 
 
-export const get_daily_moods = async ({ team_id, month }: { team_id: string, month?: Date }) => {
+export const get_daily_moods = async ({ team_id, month, is_admin }: { team_id: string, month?: Date, is_admin: boolean }) => {
     const targetDate = month ? new Date(month) : new Date();
 
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1, 0, 0, 0);
@@ -114,10 +116,11 @@ export const get_daily_moods = async ({ team_id, month }: { team_id: string, mon
 
     const moods = await MoodModel.findAll({
         where: {
-            team_id: team_id,
+            team_id,
             created_at: {
                 [Op.between]: [startOfMonth, endOfMonth],
             },
+            ...(is_admin ? {} : { is_anonymous: false })
         },
     });
 
@@ -125,8 +128,8 @@ export const get_daily_moods = async ({ team_id, month }: { team_id: string, mon
     const userMoods: { [userId: string]: { date: string; mood: number; note: string }[] } = {};
 
     moods.forEach((mood) => {
-        const userId = mood.user_id; // Use user_id as the key
-        const date = new Date(mood.created_at).getDate().toString(); // Extract day of the month as string
+        const userId = mood.user_id;
+        const date = new Date(mood.created_at).getDate().toString();
         const moodScore = mood.mood_score as number;
         const note = mood.note || '';
 

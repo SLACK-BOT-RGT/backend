@@ -27,10 +27,6 @@ export const HandleKudosSubmission = async ({ ack, body, view, client, logger }:
     const kudosType = (view.state.values['kudos_type_block']['kudos_type']['selected_option']?.value as kudosType) || 'thumbs';
     const kudosCategory = (view.state.values['kudos_category_block']['kudos_category']['selected_option']?.value as kudosCategory) || 'Teamwork';
 
-    console.log('====================================');
-    console.log(recipient, message, kudosCategory, kudosType);
-    console.log('====================================');
-
     if (!recipient || !message || !kudosType) {
         await client.chat.postMessage({
             channel: from_user_id,

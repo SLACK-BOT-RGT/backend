@@ -68,9 +68,6 @@ export async function sendPollToChannel(pollId: string) {
         // 4. Send poll to Slack
         const response = await slack.chat.postMessage(pollMessage);
 
-        console.log('====================================');
-        console.log("response=>", response);
-        console.log('====================================');
         return response;
     } catch (error) {
         console.error('Error sending poll:', error);

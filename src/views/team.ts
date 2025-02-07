@@ -1,6 +1,6 @@
 import { AckFn, RespondFn, SlackViewAction, ViewOutput, ViewResponseAction } from "@slack/bolt";
 import { Logger, WebClient } from "@slack/web-api";
-import { create_Team } from "../services/team";
+import { create_team } from "../services/team";
 import { TeamModel } from "../model";
 
 interface CreateTeamModalSubmissionProps {
@@ -32,7 +32,7 @@ export const CreateTeamModalSubmission = async ({ ack, body, view, client, logge
         if (channelResponse.ok && channelResponse.channel?.id) {
             const channelId = channelResponse.channel.id;
 
-            await create_Team({ id: channelId, name: name.toLowerCase().replace(/\s+/g, "-"), description });
+            await create_team({ id: channelId, name: name.toLowerCase().replace(/\s+/g, "-"), description });
 
             const userId = body.user.id;
 

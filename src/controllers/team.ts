@@ -1,4 +1,4 @@
-import { create_Team } from '../services/team';
+import { create_team } from '../services/team';
 import { CustomError } from '../utils/CustomError';
 import { delete_team_by_id, get_all_teams, get_team_by_id, update_team_by_id } from '../services/team';
 import { NextFunction, Request, Response } from 'express';
@@ -35,7 +35,7 @@ export const createTeamRequest = async (req: Request, res: Response, next: NextF
 
         const channelId = channelResponse.channel.id;
 
-        const newTeam = await create_Team({ id: channelId, name: name, description });
+        const newTeam = await create_team({ id: channelId, name: name, description });
 
         res.status(201).json({ data: newTeam, success: true });
     } catch (error) {

@@ -20,9 +20,6 @@ export const StandupResponseModalSubmission = async ({ ack, body, view, client }
 
     try {
         const { team_id } = JSON.parse(view.private_metadata);
-        console.log('====================================');
-        console.log(view.state.values);
-        console.log('====================================');
         // Extract mood tracking data
         const moodTrackingValues = view.state.values.mood_tracking.mood_selection;
         const moodScore = moodTrackingValues.selected_option
@@ -30,10 +27,6 @@ export const StandupResponseModalSubmission = async ({ ack, body, view, client }
             : 0;
         const moodNote = view.state.values.mood_reason.mood_reason_input.value || ''
         const isAnonymous = (view.state.values.anonymous_option?.anonymous_selection?.selected_options)?.length ? true : false;
-
-        console.log('====================================');
-        console.log(moodScore, moodNote, isAnonymous);
-        console.log('====================================');
 
         const teamConfig = await StandupConfigsModel.findOne({
             where: {

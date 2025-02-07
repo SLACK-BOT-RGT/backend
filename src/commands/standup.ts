@@ -54,9 +54,6 @@ export const StartStandup = async ({ command, ack, respond, client }: commandPro
         });
 
         if (existingStandup) {
-            console.log('====================================');
-            console.log(existingStandup.dataValues);
-            console.log('====================================');
             await respond("Today's standup has already been submitted or missed!");
             return;
         }
@@ -93,7 +90,96 @@ export const StartStandup = async ({ command, ack, respond, client }: commandPro
         });
 
         // TODO: Mood Tracking Question ( Create questions here)
-        blocks.push()
+        blocks.push({ type: "divider" });
+
+        blocks.push(
+            {
+                type: "input",
+                block_id: "mood_tracking",
+                element: {
+                    type: "radio_buttons",
+                    options: [
+                        {
+                            text: {
+                                type: "plain_text",
+                                text: "😢 Unhappy",
+                            },
+                            value: "1",
+                        },
+                        {
+                            text: {
+                                type: "plain_text",
+                                text: "😐 Neutral",
+                            },
+                            value: "2",
+                        },
+                        {
+                            text: {
+                                type: "plain_text",
+                                text: "🙂 Happy",
+                            },
+                            value: "3",
+                        },
+                        {
+                            text: {
+                                type: "plain_text",
+                                text: "😄 Very Happy",
+                            },
+                            value: "4",
+                        },
+                    ],
+                    action_id: "mood_selection",
+                },
+                label: {
+                    type: "plain_text",
+                    text: "How is your mood today?",
+                },
+            } as any
+        )
+        blocks.push(
+
+            {
+                type: "input",
+                block_id: "mood_reason",
+                element: {
+                    type: "plain_text_input",
+                    action_id: "mood_reason_input",
+                    multiline: true,
+                    placeholder: {
+                        type: "plain_text",
+                        text: "You can state the reasons for your mood here...",
+                    },
+                },
+                label: {
+                    type: "plain_text",
+                    text: "Reason for your mood",
+                },
+                optional: true
+            } as any)
+        blocks.push(
+
+            {
+                type: "input",
+                block_id: "anonymous_option",
+                element: {
+                    type: "checkboxes",
+                    options: [
+                        {
+                            text: {
+                                type: "plain_text",
+                                text: "Submit mood anonymously",
+                            },
+                            value: "anonymous",
+                        },
+                    ],
+                    action_id: "anonymous_selection",
+                },
+                label: {
+                    type: "plain_text",
+                    text: "Anonymity",
+                },
+                optional: true
+            } as any)
         // Open modal for standup response
         await client.views.open({
             trigger_id: command.trigger_id,

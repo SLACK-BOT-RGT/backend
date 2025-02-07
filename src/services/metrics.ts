@@ -1,9 +1,7 @@
 import { KUDOS_CATEGORY } from "../constants/constants";
-import { KudosModel, PollModel, StandupConfigsModel, StandupResponseModel, UserModel } from "../model";
-// import { Op } from "sequelize";
-import { Op, fn, col, literal } from 'sequelize';
+import { KudosModel, MoodModel, PollModel, UserModel } from "../model";
+import { Op } from 'sequelize';
 
-// Define the Kudos types and their respective values
 type KudosType = "rocket" | "heart" | "thumbs";
 
 export const KUDOS_VALUES: Record<KudosType, number> = {
@@ -12,6 +10,24 @@ export const KUDOS_VALUES: Record<KudosType, number> = {
     thumbs: 1,
 };
 
+interface PollResponseMap {
+    [key: string]: {
+        total: number;
+        count: number;
+        name: string;
+    };
+}
+
+interface CombinedResponseTimesMap {
+    [key: string]: {
+        total: number;
+        count: number;
+        name: string;
+    };
+}
+
+type FastestUser = { userId: string; name: string; avgResponseTime: number } | null;
+
 // Function to get the week number from a date
 const getWeekOfMonth = (date: Date) => {
     const day = date.getDate();
@@ -19,23 +35,31 @@ const getWeekOfMonth = (date: Date) => {
 };
 
 export const get_combined_metrics = async ({ team_id, month }: { team_id: string, month?: Date }) => {
-    // If month is undefined, use the current month
+
     const targetDate = month || new Date();
 
-    // Get the first and last day of the target month
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
     const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59);
 
-    // Calculate number of weeks in the month
     const weeksInMonth = getWeekOfMonth(endOfMonth);
 
     // Initialize week-based data dynamically based on number of weeks
     const trendData = Array.from({ length: weeksInMonth }, (_, index) => ({
         week: `W${index + 1}`,
-        mood: 0,  // Initialize all moods to 0
+        mood: 0,
         kudos: 0,
         pollParticipation: 0
     }));
+
+    // Fetch data for the specific month
+    const moods = await MoodModel.findAll({
+        where: {
+            team_id,
+            created_at: {
+                [Op.between]: [startOfMonth, endOfMonth],
+            },
+        },
+    });
 
     // Fetch data for the specific month
     const kudos = await KudosModel.findAll({
@@ -65,9 +89,17 @@ export const get_combined_metrics = async ({ team_id, month }: { team_id: string
         }
     });
 
+    // Calculate Kudos for each week
+    moods.forEach((mood: any) => {
+        const weekIndex = getWeekOfMonth(new Date(mood.created_at)) - 1;
+        if (weekIndex >= 0 && weekIndex < trendData.length) {
+            trendData[weekIndex].mood += mood.mood_score;
+        }
+    });
+
     // Calculate Poll Participation for each week
     polls.forEach((poll: any) => {
-        const weekIndex = getWeekOfMonth(new Date(poll.end_time)) - 1;
+        const weekIndex = getWeekOfMonth(new Date(poll.start_time)) - 1;
         if (weekIndex >= 0 && weekIndex < trendData.length) {
             trendData[weekIndex].pollParticipation += poll.total_votes;
         }
@@ -118,92 +150,11 @@ export const get_kudos_category = async ({ team_id, month }: { team_id: string, 
 };
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ==============================================
-interface StandupResponseMap {
-    [key: string]: {
-        total: number;
-        count: number;
-        name: string;
-    };
-}
-
-interface PollResponseMap {
-    [key: string]: {
-        total: number;
-        count: number;
-        name: string;
-    };
-}
-
-interface CombinedResponseTimesMap {
-    [key: string]: {
-        total: number;
-        count: number;
-        name: string;
-    };
-}
-
-type FastestUser = { userId: string; name: string; avgResponseTime: number } | null;
 export const get_quickest_responder = async ({ team_id, month }: { team_id: string, month?: Date }) => {
-    // Step 1: Calculate the target month (default to the current month if not provided)
     const targetDate = month || new Date();
     const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
     const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0, 23, 59, 59);
 
-    // Step 2: Calculate average standup response time per user for the specific month
-    // const standupResponseTimes = await StandupResponseModel.findAll({
-    //     include: [
-    //         {
-    //             model: StandupConfigsModel,
-    //             attributes: ['reminder_time'],
-    //         },
-    //         {
-    //             model: UserModel,
-    //             attributes: ['id', 'name'],
-    //         },
-    //     ],
-    //     attributes: [
-    //         'user_id',
-    //         [literal(`EXTRACT(EPOCH FROM (submitted_at - reminder_time))`), 'response_time'],
-    //     ],
-    //     where: {
-    //         status: 'responded',
-    //         submitted_at: {
-    //             [Op.gte]: startOfMonth, // Filter for records after the start of the month
-    //             [Op.lte]: endOfMonth,   // Filter for records before the end of the month
-    //         }
-    //     },
-    //     raw: true
-    // });
-
-    // Aggregate standup response times
-    // const standupResponseMap: StandupResponseMap = {};
-    // standupResponseTimes.forEach((response: any) => {
-    //     if (!standupResponseMap[response.user_id]) {
-    //         standupResponseMap[response.user_id] = {
-    //             total: 0,
-    //             count: 0,
-    //             name: response.User.name
-    //         };
-    //     }
-    //     standupResponseMap[response.user_id].total += parseFloat(response.response_time);
-    //     standupResponseMap[response.user_id].count += 1;
-    // });
-
-    // Step 3: Calculate average poll response time per user for the specific month
     const pollResponses = await PollModel.findAll({
         where: { team_id },
         attributes: ['options', 'start_time'],
@@ -218,7 +169,7 @@ export const get_quickest_responder = async ({ team_id, month }: { team_id: stri
 
     pollResponses.forEach(poll => {
         const pollStartTime = new Date(poll.start_time);
-        if (pollStartTime >= startOfMonth && pollStartTime <= endOfMonth) { // Filter by month
+        if (pollStartTime >= startOfMonth && pollStartTime <= endOfMonth) {
             poll.options.forEach(option => {
                 if (option.voters && option.voters.length > 0) {
                     option.voters.forEach(voter => {
@@ -226,7 +177,7 @@ export const get_quickest_responder = async ({ team_id, month }: { team_id: stri
                         if (!pollResponseMap[voter.id]) {
                             pollResponseMap[voter.id] = { total: 0, count: 0, name: voter.name };
                         }
-                        pollResponseMap[voter.id].total += responseTime / 1000;  // Convert ms to seconds
+                        pollResponseMap[voter.id].total += responseTime / 1000;
                         pollResponseMap[voter.id].count += 1;
                     });
                 }
@@ -234,16 +185,7 @@ export const get_quickest_responder = async ({ team_id, month }: { team_id: stri
         }
     });
 
-    // Step 4: Combine Standup and Poll Responses
     const combinedResponseTimes: CombinedResponseTimesMap = {};
-
-    // Object.keys(standupResponseMap).forEach(userId => {
-    //     combinedResponseTimes[userId] = {
-    //         total: standupResponseMap[userId].total,
-    //         count: standupResponseMap[userId].count,
-    //         name: standupResponseMap[userId].name,
-    //     };
-    // });
 
     Object.keys(pollResponseMap).forEach(userId => {
         if (combinedResponseTimes[userId]) {
@@ -258,7 +200,6 @@ export const get_quickest_responder = async ({ team_id, month }: { team_id: stri
         }
     });
 
-    // Step 5: Find the user with the best (lowest) average response time
     const quickestUser = Object.entries(combinedResponseTimes).reduce<FastestUser>((fastest, [userId, data]) => {
         const avgResponseTime = parseFloat((data.total / data.count / 3600).toFixed(4));
         if (!fastest || avgResponseTime < fastest.avgResponseTime) {

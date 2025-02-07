@@ -79,6 +79,7 @@ export const submitStandupModal = async (userId: string, client: any, triggerId:
                         multiline: true
                     }
                 })) as any, // Dynamically add each question as a block
+                { type: "divider" },
                 {
                     type: "input",
                     block_id: "mood_tracking",

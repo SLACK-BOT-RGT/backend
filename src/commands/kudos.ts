@@ -52,9 +52,6 @@ export const GiveKudos = async ({ command, ack, respond, client }: CommandProps)
             return respond("⚠️ You have reached your 3 kudos limit for today.");
         }
 
-        console.log('====================================');
-        // console.log(members.);
-        console.log('====================================');
         // Create a dropdown with all team members
         const memberOptions: { text: { type: "plain_text"; text: string; emoji: boolean }; value: string }[] =
             members.map(member => {
